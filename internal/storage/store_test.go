@@ -133,3 +133,23 @@ func TestEndBeforeStartIsRejectedByDatabase(t *testing.T) {
 		t.Error("interval ending before its start was accepted")
 	}
 }
+
+func TestLanguageIsEmptyUntilSavedAndSurvivesReopening(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "stopwatch.db")
+	store := openStore(t, path)
+
+	language, err := store.Language()
+	mustSucceed(t, err)
+	if language != "" {
+		t.Errorf("language = %q, want empty", language)
+	}
+
+	mustSucceed(t, store.SaveLanguage("ru"))
+	mustSucceed(t, store.Close())
+
+	language, err = openStore(t, path).Language()
+	mustSucceed(t, err)
+	if language != "ru" {
+		t.Errorf("language after reopening = %q, want ru", language)
+	}
+}

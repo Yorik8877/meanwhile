@@ -5,7 +5,6 @@
   "tasks.new_placeholder": "Новая задача",
   "tasks.add": "Добавить",
   "tasks.pause_all": "Пауза для всех",
-  "tasks.times": "Сегодня {{.Today}} · Всего {{.Total}}",
   "tasks.edit": "Изменить",
   "tasks.intervals": "Отрезки",
   "tasks.delete": "Удалить",
@@ -70,5 +69,8 @@
   "tray.open": "Открыть",
   "tray.pause_all": "Пауза для всех",
   "tray.quit": "Выход",
-  "startup.database_error": "Не удалось открыть базу {{.Path}}: {{.Error}}"
+  "startup.database_error": "Не удалось открыть базу {{.Path}}: {{.Error}}",
+  "language.system": "Как в системе",
+  "tasks.today": "Сегодня {{.Duration}}",
+  "tasks.total": "Всего {{.Duration}}"
 }

@@ -85,6 +85,8 @@ func showRunningInstance(runtimeDir string) int {
 func runApplication(resolved locations, guard *instance.Guard, hidden bool) int {
 	application := app.NewWithID(applicationID)
 	application.SetIcon(ui.AppIcon)
+	// The system language comes first, so that a database error is shown in
+	// it; the saved language needs the database.
 	if err := ui.LoadTranslations(); err != nil {
 		slog.Error("load translations", "error", err)
 	}
@@ -97,8 +99,9 @@ func runApplication(resolved locations, guard *instance.Guard, hidden bool) int 
 		return exitFailure
 	}
 	defer store.Close()
+	applySavedLanguage(store)
 
-	mainWindow := ui.NewMainWindow(application, tracker)
+	mainWindow := ui.NewMainWindow(application, tracker, store)
 	if guard != nil {
 		go guard.Serve(func() { fyne.Do(mainWindow.Show) })
 	}
@@ -164,5 +167,16 @@ func recordHeartbeats(tracker *tracking.Tracker, stop <-chan struct{}) {
 func recordHeartbeat(tracker *tracking.Tracker) {
 	if err := tracker.RecordHeartbeat(); err != nil {
 		slog.Error("record heartbeat", "error", err)
+	}
+}
+
+func applySavedLanguage(store *storage.Store) {
+	code, err := store.Language()
+	if err != nil {
+		slog.Error("read saved language", "error", err)
+		return
+	}
+	if err := ui.ApplyLanguage(code); err != nil {
+		slog.Error("apply saved language", "error", err)
 	}
 }

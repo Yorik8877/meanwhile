@@ -13,7 +13,10 @@ import (
 	"stopwatch/internal/tracking"
 )
 
-const heartbeatKey = "last_heartbeat_at"
+const (
+	heartbeatKey = "last_heartbeat_at"
+	languageKey  = "language"
+)
 
 // Store implements tracking.Repository. Moments are stored as Unix
 // milliseconds.
@@ -186,12 +189,8 @@ func (store *Store) DeleteInterval(id tracking.IntervalID) error {
 }
 
 func (store *Store) Heartbeat() (time.Time, error) {
-	var value string
-	err := store.database.QueryRow("SELECT value FROM app_state WHERE key = ?", heartbeatKey).Scan(&value)
-	if errors.Is(err, sql.ErrNoRows) {
-		return time.Time{}, nil
-	}
-	if err != nil {
+	value, err := store.stateValue(heartbeatKey)
+	if err != nil || value == "" {
 		return time.Time{}, err
 	}
 	milliseconds, err := strconv.ParseInt(value, 10, 64)
@@ -202,9 +201,33 @@ func (store *Store) Heartbeat() (time.Time, error) {
 }
 
 func (store *Store) SaveHeartbeat(moment time.Time) error {
+	return store.saveStateValue(heartbeatKey, strconv.FormatInt(moment.UnixMilli(), 10))
+}
+
+// Language returns the chosen interface language code, or an empty string
+// when the system language is used.
+func (store *Store) Language() (string, error) {
+	return store.stateValue(languageKey)
+}
+
+func (store *Store) SaveLanguage(code string) error {
+	return store.saveStateValue(languageKey, code)
+}
+
+// stateValue returns an empty string for a key that was never saved.
+func (store *Store) stateValue(key string) (string, error) {
+	var value string
+	err := store.database.QueryRow("SELECT value FROM app_state WHERE key = ?", key).Scan(&value)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil
+	}
+	return value, err
+}
+
+func (store *Store) saveStateValue(key, value string) error {
 	_, err := store.database.Exec(
 		"INSERT INTO app_state (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value",
-		heartbeatKey, strconv.FormatInt(moment.UnixMilli(), 10),
+		key, value,
 	)
 	return err
 }

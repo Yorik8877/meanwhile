@@ -20,16 +20,18 @@ type tray struct {
 	showsRunningIcon bool
 }
 
-func installTray(application fyne.App, window fyne.Window, tracker *tracking.Tracker) {
+// installTray returns nil when the driver has no system tray support.
+func installTray(application fyne.App, window fyne.Window, tracker *tracking.Tracker) *tray {
 	desktopApp, supported := application.(desktop.App)
 	if !supported {
 		slog.Warn("system tray is not supported by this driver")
-		return
+		return nil
 	}
 	tray := &tray{desktopApp: desktopApp, tracker: tracker, window: window}
 	tray.refresh()
 	desktopApp.SetSystemTrayWindow(window)
 	tracker.Subscribe(func() { fyne.Do(tray.refresh) })
+	return tray
 }
 
 func (tray *tray) refresh() {

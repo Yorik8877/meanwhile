@@ -5,7 +5,6 @@
   "tasks.new_placeholder": "New task",
   "tasks.add": "Add",
   "tasks.pause_all": "Pause all",
-  "tasks.times": "Today {{.Today}} · Total {{.Total}}",
   "tasks.edit": "Edit",
   "tasks.intervals": "Intervals",
   "tasks.delete": "Delete",
@@ -70,5 +69,8 @@
   "tray.open": "Open",
   "tray.pause_all": "Pause all",
   "tray.quit": "Quit",
-  "startup.database_error": "Cannot open the database {{.Path}}: {{.Error}}"
+  "startup.database_error": "Cannot open the database {{.Path}}: {{.Error}}",
+  "language.system": "System language",
+  "tasks.today": "Today {{.Duration}}",
+  "tasks.total": "Total {{.Duration}}"
 }

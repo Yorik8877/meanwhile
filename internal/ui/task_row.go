@@ -1,18 +1,21 @@
 package ui
 
 import (
+	"image/color"
 	"strings"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
 	"stopwatch/internal/tracking"
 )
 
-// taskRow is one line of the task list. The list reuses rows, so show binds
-// a row to a task every time it is redrawn.
+// taskRow is one task card in the task list. The list reuses rows, so show
+// binds a row to a task every time it is redrawn.
 type taskRow struct {
 	widget.BaseWidget
 	toggle *widget.Button
@@ -27,28 +30,38 @@ func newTaskRow() *taskRow {
 		toggle: widget.NewButtonWithIcon("", theme.MediaPlayIcon(), nil),
 		name:   widget.NewLabel(""),
 		note:   widget.NewLabel(""),
-		times:  widget.NewLabel(""),
-		more:   widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), nil),
+		// Two lines from the start: the list sizes every row by the template row.
+		times: widget.NewLabel("\n"),
+		more:  widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), nil),
 	}
 	row.name.Truncation = fyne.TextTruncateEllipsis
 	row.note.Truncation = fyne.TextTruncateEllipsis
 	row.note.Importance = widget.LowImportance
+	row.times.Alignment = fyne.TextAlignTrailing
 	row.ExtendBaseWidget(row)
 	return row
 }
 
 func (row *taskRow) CreateRenderer() fyne.WidgetRenderer {
-	details := container.NewVBox(row.name, row.note, row.times)
-	return widget.NewSimpleRenderer(container.NewBorder(nil, nil, row.toggle, row.more, details))
+	background := canvas.NewRectangle(cardColor())
+	background.CornerRadius = theme.InputRadiusSize()
+
+	details := container.NewVBox(row.name, row.note)
+	times := container.NewVBox(container.NewHBox(layout.NewSpacer(), row.more), row.times)
+	content := container.NewBorder(nil, nil, container.NewVBox(row.toggle), times, details)
+	card := container.NewStack(background, container.NewPadded(content))
+	return &taskRowRenderer{WidgetRenderer: widget.NewSimpleRenderer(card), background: background}
 }
 
 func (row *taskRow) show(summary tracking.TaskSummary, onToggle func(), onMore func(anchor fyne.CanvasObject)) {
 	row.name.SetText(summary.Task.Name)
 	row.name.TextStyle.Bold = summary.Running
 	row.note.SetText(firstLine(summary.Task.Note))
-	row.times.SetText(message{"tasks.times", "Today {{.Today}} · Total {{.Total}}"}.With(map[string]any{
-		"Today": formatDuration(summary.Today),
-		"Total": formatDuration(summary.Total),
+	// One two-line label keeps the lines closer than two labels would.
+	row.times.SetText(message{"tasks.today", "Today {{.Duration}}"}.With(map[string]any{
+		"Duration": formatDuration(summary.Today),
+	}) + "\n" + message{"tasks.total", "Total {{.Duration}}"}.With(map[string]any{
+		"Duration": formatDuration(summary.Total),
 	}))
 
 	if summary.Running {
@@ -61,6 +74,26 @@ func (row *taskRow) show(summary tracking.TaskSummary, onToggle func(), onMore f
 	row.toggle.OnTapped = onToggle
 	row.more.OnTapped = func() { onMore(row.more) }
 	row.Refresh()
+}
+
+// taskRowRenderer repaints the card background on refresh, so that the
+// card follows a switch between the light and the dark theme.
+type taskRowRenderer struct {
+	fyne.WidgetRenderer
+	background *canvas.Rectangle
+}
+
+func (renderer *taskRowRenderer) Refresh() {
+	renderer.background.FillColor = cardColor()
+	renderer.background.CornerRadius = theme.InputRadiusSize()
+	renderer.background.Refresh()
+	renderer.WidgetRenderer.Refresh()
+}
+
+// cardColor is the background of text fields: slightly lighter than the
+// window in the dark theme and slightly darker in the light one.
+func cardColor() color.Color {
+	return theme.Color(theme.ColorNameInputBackground)
 }
 
 func firstLine(text string) string {

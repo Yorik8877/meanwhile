@@ -5,12 +5,18 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 
 	"stopwatch/internal/tracking"
 )
 
 type MainWindow struct {
 	window    fyne.Window
+	tracker   *tracking.Tracker
+	languages LanguageSetting
+	tray      *tray
 	tabs      *container.AppTabs
 	tasksItem *container.TabItem
 	tasks     *tasksTab
@@ -19,23 +25,17 @@ type MainWindow struct {
 
 // NewMainWindow builds the window and the tray icon. Closing the window only
 // hides it; the program keeps running in the tray.
-func NewMainWindow(application fyne.App, tracker *tracking.Tracker) *MainWindow {
-	window := application.NewWindow(message{"app.title", "Stopwatch"}.String())
+func NewMainWindow(application fyne.App, tracker *tracking.Tracker, languages LanguageSetting) *MainWindow {
 	mainWindow := &MainWindow{
-		window:  window,
-		tasks:   newTasksTab(tracker, window),
-		history: newHistoryTab(tracker),
+		window:    application.NewWindow(""),
+		tracker:   tracker,
+		languages: languages,
 	}
-	mainWindow.tasksItem = container.NewTabItem(message{"tab.tasks", "Tasks"}.String(), mainWindow.tasks.content)
-	historyItem := container.NewTabItem(message{"tab.history", "History"}.String(), mainWindow.history.content)
-	mainWindow.tabs = container.NewAppTabs(mainWindow.tasksItem, historyItem)
-	mainWindow.tabs.OnSelected = func(*container.TabItem) { mainWindow.refresh() }
-
-	window.SetContent(mainWindow.tabs)
-	window.Resize(windowSize)
-	window.SetCloseIntercept(window.Hide)
+	mainWindow.build()
+	mainWindow.window.Resize(windowSize)
+	mainWindow.window.SetCloseIntercept(mainWindow.window.Hide)
 	tracker.Subscribe(func() { fyne.Do(mainWindow.refresh) })
-	installTray(application, window, tracker)
+	mainWindow.tray = installTray(application, mainWindow.window, tracker)
 	return mainWindow
 }
 
@@ -55,6 +55,64 @@ func (mainWindow *MainWindow) RunTicker(stop <-chan struct{}) {
 		case <-ticker.C:
 			fyne.Do(mainWindow.refresh)
 		}
+	}
+}
+
+// build creates the window content in the current language. It runs again
+// after the language changes, because every widget takes its text when it
+// is created.
+func (mainWindow *MainWindow) build() {
+	mainWindow.window.SetTitle(message{"app.title", "Stopwatch"}.String())
+	mainWindow.tasks = newTasksTab(mainWindow.tracker, mainWindow.window)
+	mainWindow.history = newHistoryTab(mainWindow.tracker)
+	mainWindow.tasksItem = container.NewTabItem(message{"tab.tasks", "Tasks"}.String(), mainWindow.tasks.content)
+	historyItem := container.NewTabItem(message{"tab.history", "History"}.String(), mainWindow.history.content)
+	mainWindow.tabs = container.NewAppTabs(mainWindow.tasksItem, historyItem)
+	mainWindow.tabs.OnSelected = func(*container.TabItem) { mainWindow.refresh() }
+
+	// AppTabs has no place for extra buttons, so the settings button is laid
+	// over the empty right end of the tab bar.
+	var settingsButton *widget.Button
+	settingsButton = widget.NewButtonWithIcon("", theme.SettingsIcon(), func() {
+		mainWindow.showLanguageMenu(settingsButton)
+	})
+	settingsButton.Importance = widget.LowImportance
+	settingsBar := container.NewVBox(container.NewHBox(layout.NewSpacer(), settingsButton))
+	mainWindow.window.SetContent(container.NewStack(mainWindow.tabs, settingsBar))
+}
+
+func (mainWindow *MainWindow) showLanguageMenu(anchor fyne.CanvasObject) {
+	current, err := mainWindow.languages.Language()
+	if err != nil {
+		reportError(mainWindow.window, err)
+		return
+	}
+	if !isKnownLanguage(current) {
+		current = systemLanguage
+	}
+
+	items := make([]*fyne.MenuItem, 0, len(languageOptions))
+	for _, option := range languageOptions {
+		item := fyne.NewMenuItem(option.label(), func() { mainWindow.switchLanguage(option.code) })
+		item.Checked = option.code == current
+		items = append(items, item)
+	}
+	canvas := fyne.CurrentApp().Driver().CanvasForObject(anchor)
+	widget.ShowPopUpMenuAtRelativePosition(fyne.NewMenu("", items...), canvas, fyne.NewPos(0, anchor.Size().Height), anchor)
+}
+
+func (mainWindow *MainWindow) switchLanguage(code string) {
+	if err := mainWindow.languages.SaveLanguage(code); err != nil {
+		reportError(mainWindow.window, err)
+		return
+	}
+	if err := ApplyLanguage(code); err != nil {
+		reportError(mainWindow.window, err)
+		return
+	}
+	mainWindow.build()
+	if mainWindow.tray != nil {
+		mainWindow.tray.refresh()
 	}
 }
 
