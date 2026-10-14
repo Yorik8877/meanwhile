@@ -57,8 +57,10 @@ func (tray *tray) menuItems() []*fyne.MenuItem {
 		tray.report(tray.tracker.PauseAll(time.Now()))
 	})
 	pauseAll.Disabled = !tray.tracker.AnyRunning()
-	// An IsQuit item without an action makes Fyne quit the application.
-	quit := fyne.NewMenuItem(message{"tray.quit", "Quit"}.String(), nil)
+	// The action is set explicitly: Fyne fills in the action of an IsQuit item
+	// only after it has already bound the menu's click handlers, so a rebuilt
+	// menu would otherwise have a quit item that does nothing.
+	quit := fyne.NewMenuItem(message{"tray.quit", "Quit"}.String(), fyne.CurrentApp().Quit)
 	quit.IsQuit = true
 	return append(items, fyne.NewMenuItemSeparator(), pauseAll, quit)
 }
