@@ -12,6 +12,9 @@ type locations struct {
 	DataDir    string
 	StateDir   string
 	RuntimeDir string
+	// ConfigHome holds the autostart entry. It is empty for a development
+	// copy, which must not touch the installed program's autostart.
+	ConfigHome string
 }
 
 // resolveLocations follows the XDG base directory specification. An override
@@ -28,6 +31,7 @@ func resolveLocations(environment func(string) string, homeDir, override string)
 		DataDir:    filepath.Join(dataHome, applicationDirectoryName),
 		StateDir:   stateDir,
 		RuntimeDir: absoluteOr(environment("XDG_RUNTIME_DIR"), stateDir),
+		ConfigHome: absoluteOr(environment("XDG_CONFIG_HOME"), filepath.Join(homeDir, ".config")),
 	}
 }
 

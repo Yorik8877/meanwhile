@@ -14,6 +14,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 
+	"stopwatch/internal/autostart"
 	"stopwatch/internal/instance"
 	"stopwatch/internal/power"
 	"stopwatch/internal/storage"
@@ -101,7 +102,8 @@ func runApplication(resolved locations, guard *instance.Guard, hidden bool) int 
 	defer store.Close()
 	applySavedLanguage(store)
 
-	mainWindow := ui.NewMainWindow(application, tracker, store)
+	settings := ui.Settings{Language: store, Autostart: autostartEntry(resolved.ConfigHome)}
+	mainWindow := ui.NewMainWindow(application, tracker, settings)
 	if guard != nil {
 		go guard.Serve(func() { fyne.Do(mainWindow.Show) })
 	}
@@ -179,4 +181,18 @@ func applySavedLanguage(store *storage.Store) {
 	if err := ui.ApplyLanguage(code); err != nil {
 		slog.Error("apply saved language", "error", err)
 	}
+}
+
+// autostartEntry returns nil, which hides the setting, for a development
+// copy and when the program cannot find its own executable.
+func autostartEntry(configHome string) ui.AutostartSetting {
+	if configHome == "" {
+		return nil
+	}
+	executable, err := os.Executable()
+	if err != nil {
+		slog.Error("find own executable for autostart", "error", err)
+		return nil
+	}
+	return autostart.NewEntry(configHome, executable)
 }

@@ -71,5 +71,6 @@
   "language.system": "System language",
   "tasks.today": "Today {{.Duration}}",
   "tasks.total": "Total {{.Duration}}",
-  "settings.language": "Language:"
+  "settings.language": "Language:",
+  "settings.autostart": "Start at login"
 }

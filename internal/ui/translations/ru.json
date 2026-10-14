@@ -71,5 +71,6 @@
   "language.system": "Как в системе",
   "tasks.today": "Сегодня {{.Duration}}",
   "tasks.total": "Всего {{.Duration}}",
-  "settings.language": "Язык:"
+  "settings.language": "Язык:",
+  "settings.autostart": "Запускать при входе в систему"
 }

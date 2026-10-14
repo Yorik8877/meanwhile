@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"slices"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -16,7 +15,7 @@ import (
 type MainWindow struct {
 	window    fyne.Window
 	tracker   *tracking.Tracker
-	languages LanguageSetting
+	settings  Settings
 	tray      *tray
 	tabs      *container.AppTabs
 	tasksItem *container.TabItem
@@ -26,11 +25,11 @@ type MainWindow struct {
 
 // NewMainWindow builds the window and the tray icon. Closing the window only
 // hides it; the program keeps running in the tray.
-func NewMainWindow(application fyne.App, tracker *tracking.Tracker, languages LanguageSetting) *MainWindow {
+func NewMainWindow(application fyne.App, tracker *tracking.Tracker, settings Settings) *MainWindow {
 	mainWindow := &MainWindow{
-		window:    application.NewWindow(""),
-		tracker:   tracker,
-		languages: languages,
+		window:   application.NewWindow(""),
+		tracker:  tracker,
+		settings: settings,
 	}
 	mainWindow.build()
 	mainWindow.window.Resize(windowSize)
@@ -82,39 +81,8 @@ func (mainWindow *MainWindow) build() {
 	mainWindow.window.SetContent(container.NewStack(mainWindow.tabs, settingsBar))
 }
 
-// showSettings opens a small panel under the settings button, kept away
-// from the window's right edge.
-func (mainWindow *MainWindow) showSettings(anchor fyne.CanvasObject) {
-	current, err := mainWindow.languages.Language()
-	if err != nil {
-		reportError(mainWindow.window, err)
-		return
-	}
-
-	labels := make([]string, len(languageOptions))
-	for index, option := range languageOptions {
-		labels[index] = option.label()
-	}
-	selector := widget.NewSelect(labels, nil)
-	selector.SetSelected(languageOptionFor(current).label())
-	content := container.NewHBox(widget.NewLabel(message{"settings.language", "Language:"}.String()), selector)
-
-	windowCanvas := mainWindow.window.Canvas()
-	panel := widget.NewPopUp(content, windowCanvas)
-	// Assigned after SetSelected, so that showing the current value does not
-	// count as a change.
-	selector.OnChanged = func(label string) {
-		panel.Hide()
-		mainWindow.switchLanguage(languageOptions[slices.Index(labels, label)].code)
-	}
-
-	anchorPosition := fyne.CurrentApp().Driver().AbsolutePositionForObject(anchor)
-	panelLeft := windowCanvas.Size().Width - panel.MinSize().Width - settingsPanelMargin
-	panel.ShowAtPosition(fyne.NewPos(panelLeft, anchorPosition.Y+anchor.Size().Height))
-}
-
 func (mainWindow *MainWindow) switchLanguage(code string) {
-	if err := mainWindow.languages.SaveLanguage(code); err != nil {
+	if err := mainWindow.settings.Language.SaveLanguage(code); err != nil {
 		reportError(mainWindow.window, err)
 		return
 	}
