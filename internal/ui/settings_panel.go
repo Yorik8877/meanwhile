@@ -33,11 +33,15 @@ func (mainWindow *MainWindow) showSettings(anchor fyne.CanvasObject) {
 	}
 	content := container.NewVBox(languageRow)
 	if mainWindow.settings.Autostart != nil {
-		content.Add(mainWindow.autostartCheck())
+		content.Add(mainWindow.autostartRow())
 	}
 
 	windowCanvas := mainWindow.window.Canvas()
-	panel = widget.NewPopUp(content, windowCanvas)
+	padding := settingsPanelPadding
+	// No extra padding on the left: the "Language:" label already starts
+	// with its own inner padding.
+	paddedContent := container.New(layout.NewCustomPaddedLayout(padding, padding, 0, padding), content)
+	panel = widget.NewPopUp(paddedContent, windowCanvas)
 	anchorPosition := fyne.CurrentApp().Driver().AbsolutePositionForObject(anchor)
 	panelLeft := windowCanvas.Size().Width - panel.MinSize().Width - settingsPanelMargin
 	panel.ShowAtPosition(fyne.NewPos(panelLeft, anchorPosition.Y+anchor.Size().Height))
@@ -68,11 +72,18 @@ func (mainWindow *MainWindow) languageRow(closePanel func()) (fyne.CanvasObject,
 	return container.New(layout.NewFormLayout(), label, selector), nil
 }
 
+// autostartRow puts the label on the left and the check box at the right
+// edge of the panel.
+func (mainWindow *MainWindow) autostartRow() fyne.CanvasObject {
+	label := widget.NewLabel(message{"settings.autostart", "Start at login"}.String())
+	return container.NewBorder(nil, nil, label, mainWindow.autostartCheck())
+}
+
 // autostartCheck reverts itself when the change cannot be saved, so that it
 // always shows the real state.
 func (mainWindow *MainWindow) autostartCheck() *widget.Check {
 	autostart := mainWindow.settings.Autostart
-	check := widget.NewCheck(message{"settings.autostart", "Start at login"}.String(), nil)
+	check := widget.NewCheck("", nil)
 	enabled, err := autostart.Enabled()
 	if err != nil {
 		slog.Error("read autostart state", "error", err)
