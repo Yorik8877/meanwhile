@@ -72,5 +72,6 @@
   "startup.database_error": "Не удалось открыть базу {{.Path}}: {{.Error}}",
   "language.system": "Как в системе",
   "tasks.today": "Сегодня {{.Duration}}",
-  "tasks.total": "Всего {{.Duration}}"
+  "tasks.total": "Всего {{.Duration}}",
+  "settings.language": "Язык:"
 }

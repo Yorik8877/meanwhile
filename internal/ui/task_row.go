@@ -14,6 +14,10 @@ import (
 	"stopwatch/internal/tracking"
 )
 
+// toggleIconScale makes the start/pause button the most prominent control
+// on a card.
+const toggleIconScale = 1.5
+
 // taskRow is one task card in the task list. The list reuses rows, so show
 // binds a row to a task every time it is redrawn.
 type taskRow struct {
@@ -35,6 +39,7 @@ func newTaskRow() *taskRow {
 		more:  widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), nil),
 	}
 	row.name.Truncation = fyne.TextTruncateEllipsis
+	row.name.SizeName = theme.SizeNameSubHeadingText
 	row.note.Truncation = fyne.TextTruncateEllipsis
 	row.note.Importance = widget.LowImportance
 	row.times.Alignment = fyne.TextAlignTrailing
@@ -48,8 +53,9 @@ func (row *taskRow) CreateRenderer() fyne.WidgetRenderer {
 
 	details := container.NewVBox(row.name, row.note)
 	times := container.NewVBox(container.NewHBox(layout.NewSpacer(), row.more), row.times)
-	content := container.NewBorder(nil, nil, container.NewVBox(row.toggle), times, details)
-	card := container.NewStack(background, container.NewPadded(content))
+	toggle := container.NewThemeOverride(row.toggle, cardTheme{iconScale: toggleIconScale})
+	content := container.NewBorder(nil, nil, container.NewVBox(toggle), times, details)
+	card := container.NewStack(background, container.NewPadded(container.NewThemeOverride(content, cardTheme{})))
 	return &taskRowRenderer{WidgetRenderer: widget.NewSimpleRenderer(card), background: background}
 }
 

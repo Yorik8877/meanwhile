@@ -58,6 +58,16 @@ func setLanguageVariable(code string) error {
 	return os.Unsetenv(languageVariable)
 }
 
+// languageOptionFor returns the option for the code, or the system language
+// option for an unknown code.
+func languageOptionFor(code string) languageOption {
+	index := slices.IndexFunc(languageOptions, func(option languageOption) bool { return option.code == code })
+	if index < 0 {
+		return languageOptions[0]
+	}
+	return languageOptions[index]
+}
+
 func isKnownLanguage(code string) bool {
 	return slices.ContainsFunc(languageOptions, func(option languageOption) bool { return option.code == code })
 }

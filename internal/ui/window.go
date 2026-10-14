@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"slices"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -74,31 +75,42 @@ func (mainWindow *MainWindow) build() {
 	// over the empty right end of the tab bar.
 	var settingsButton *widget.Button
 	settingsButton = widget.NewButtonWithIcon("", theme.SettingsIcon(), func() {
-		mainWindow.showLanguageMenu(settingsButton)
+		mainWindow.showSettings(settingsButton)
 	})
 	settingsButton.Importance = widget.LowImportance
 	settingsBar := container.NewVBox(container.NewHBox(layout.NewSpacer(), settingsButton))
 	mainWindow.window.SetContent(container.NewStack(mainWindow.tabs, settingsBar))
 }
 
-func (mainWindow *MainWindow) showLanguageMenu(anchor fyne.CanvasObject) {
+// showSettings opens a small panel under the settings button, kept away
+// from the window's right edge.
+func (mainWindow *MainWindow) showSettings(anchor fyne.CanvasObject) {
 	current, err := mainWindow.languages.Language()
 	if err != nil {
 		reportError(mainWindow.window, err)
 		return
 	}
-	if !isKnownLanguage(current) {
-		current = systemLanguage
+
+	labels := make([]string, len(languageOptions))
+	for index, option := range languageOptions {
+		labels[index] = option.label()
+	}
+	selector := widget.NewSelect(labels, nil)
+	selector.SetSelected(languageOptionFor(current).label())
+	content := container.NewHBox(widget.NewLabel(message{"settings.language", "Language:"}.String()), selector)
+
+	windowCanvas := mainWindow.window.Canvas()
+	panel := widget.NewPopUp(content, windowCanvas)
+	// Assigned after SetSelected, so that showing the current value does not
+	// count as a change.
+	selector.OnChanged = func(label string) {
+		panel.Hide()
+		mainWindow.switchLanguage(languageOptions[slices.Index(labels, label)].code)
 	}
 
-	items := make([]*fyne.MenuItem, 0, len(languageOptions))
-	for _, option := range languageOptions {
-		item := fyne.NewMenuItem(option.label(), func() { mainWindow.switchLanguage(option.code) })
-		item.Checked = option.code == current
-		items = append(items, item)
-	}
-	canvas := fyne.CurrentApp().Driver().CanvasForObject(anchor)
-	widget.ShowPopUpMenuAtRelativePosition(fyne.NewMenu("", items...), canvas, fyne.NewPos(0, anchor.Size().Height), anchor)
+	anchorPosition := fyne.CurrentApp().Driver().AbsolutePositionForObject(anchor)
+	panelLeft := windowCanvas.Size().Width - panel.MinSize().Width - settingsPanelMargin
+	panel.ShowAtPosition(fyne.NewPos(panelLeft, anchorPosition.Y+anchor.Size().Height))
 }
 
 func (mainWindow *MainWindow) switchLanguage(code string) {

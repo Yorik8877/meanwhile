@@ -72,5 +72,6 @@
   "startup.database_error": "Cannot open the database {{.Path}}: {{.Error}}",
   "language.system": "System language",
   "tasks.today": "Today {{.Duration}}",
-  "tasks.total": "Total {{.Duration}}"
+  "tasks.total": "Total {{.Duration}}",
+  "settings.language": "Language:"
 }
