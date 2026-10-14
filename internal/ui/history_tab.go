@@ -34,7 +34,8 @@ func newHistoryTab(tracker *tracking.Tracker) *historyTab {
 	hint.Importance = widget.LowImportance
 
 	navigation := container.NewBorder(nil, nil, previousWeek, tab.nextWeek, tab.weekLabel)
-	tab.content = container.NewBorder(container.NewVBox(navigation, hint), nil, nil, nil, container.NewVScroll(tab.days))
+	readableHint := container.NewThemeOverride(hint, contrastTheme{})
+	tab.content = container.NewBorder(container.NewVBox(navigation, readableHint), nil, nil, nil, container.NewVScroll(tab.days))
 	tab.refresh()
 	return tab
 }

@@ -7,34 +7,35 @@ import (
 	"fyne.io/fyne/v2/theme"
 )
 
-// cardTheme paints buttons on a task card with the window background, so
-// that they stand out from the lighter card instead of merging with it.
+// contrastTheme raises contrast where the standard theme is too soft:
+// buttons get the window background, so that they stand out from a lighter
+// task card, and low importance text gets the readable placeholder colour.
 // A non-zero iconScale enlarges button icons.
-type cardTheme struct {
+type contrastTheme struct {
 	iconScale float32
 }
 
-func (overrides cardTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
+func (overrides contrastTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
 	switch name {
 	case theme.ColorNameButton:
 		name = theme.ColorNameBackground
 	case theme.ColorNameDisabled:
 		// Low importance labels use the disabled colour, which is too faint
-		// for the note line; nothing on a card is ever disabled.
+		// to read. Wrap only content that has no disabled widgets.
 		name = theme.ColorNamePlaceHolder
 	}
 	return currentTheme().Color(name, variant)
 }
 
-func (overrides cardTheme) Font(style fyne.TextStyle) fyne.Resource {
+func (overrides contrastTheme) Font(style fyne.TextStyle) fyne.Resource {
 	return currentTheme().Font(style)
 }
 
-func (overrides cardTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
+func (overrides contrastTheme) Icon(name fyne.ThemeIconName) fyne.Resource {
 	return currentTheme().Icon(name)
 }
 
-func (overrides cardTheme) Size(name fyne.ThemeSizeName) float32 {
+func (overrides contrastTheme) Size(name fyne.ThemeSizeName) float32 {
 	size := currentTheme().Size(name)
 	if name == theme.SizeNameInlineIcon && overrides.iconScale > 0 {
 		return size * overrides.iconScale

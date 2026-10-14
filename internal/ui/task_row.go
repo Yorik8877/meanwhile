@@ -66,9 +66,9 @@ func (row *taskRow) CreateRenderer() fyne.WidgetRenderer {
 	details := container.NewVBox(row.name, row.note)
 	buttons := container.NewHBox(layout.NewSpacer(), row.intervals, row.edit, row.remove)
 	times := container.NewVBox(buttons, row.times)
-	toggle := container.NewThemeOverride(row.toggle, cardTheme{iconScale: toggleIconScale})
+	toggle := container.NewThemeOverride(row.toggle, contrastTheme{iconScale: toggleIconScale})
 	content := container.NewBorder(nil, nil, container.NewVBox(toggle), times, details)
-	card := container.NewStack(background, container.NewPadded(container.NewThemeOverride(content, cardTheme{})))
+	card := container.NewStack(background, container.NewPadded(container.NewThemeOverride(content, contrastTheme{})))
 	return &taskRowRenderer{WidgetRenderer: widget.NewSimpleRenderer(card), background: background}
 }
 
