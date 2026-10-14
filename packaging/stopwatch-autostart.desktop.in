@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Stopwatch
+Name[ru]=Секундомер
+Comment=Track time spent on parallel tasks
+Comment[ru]=Учёт времени по параллельным задачам
+Exec="@BINARY@" --hidden
+Icon=io.github.stopwatch
+Terminal=false
+X-GNOME-Autostart-enabled=true
