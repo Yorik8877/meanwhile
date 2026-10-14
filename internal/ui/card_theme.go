@@ -15,8 +15,13 @@ type cardTheme struct {
 }
 
 func (overrides cardTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
-	if name == theme.ColorNameButton {
+	switch name {
+	case theme.ColorNameButton:
 		name = theme.ColorNameBackground
+	case theme.ColorNameDisabled:
+		// Low importance labels use the disabled colour, which is too faint
+		// for the note line; nothing on a card is ever disabled.
+		name = theme.ColorNamePlaceHolder
 	}
 	return currentTheme().Color(name, variant)
 }

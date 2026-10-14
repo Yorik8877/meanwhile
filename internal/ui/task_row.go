@@ -22,11 +22,21 @@ const toggleIconScale = 1.5
 // binds a row to a task every time it is redrawn.
 type taskRow struct {
 	widget.BaseWidget
-	toggle *widget.Button
-	name   *widget.Label
-	note   *widget.Label
-	times  *widget.Label
-	more   *widget.Button
+	toggle    *widget.Button
+	name      *widget.Label
+	note      *widget.Label
+	times     *widget.Label
+	intervals *widget.Button
+	edit      *widget.Button
+	remove    *widget.Button
+}
+
+// taskActions handle the buttons of one card.
+type taskActions struct {
+	toggle    func()
+	intervals func()
+	edit      func()
+	remove    func()
 }
 
 func newTaskRow() *taskRow {
@@ -35,8 +45,10 @@ func newTaskRow() *taskRow {
 		name:   widget.NewLabel(""),
 		note:   widget.NewLabel(""),
 		// Two lines from the start: the list sizes every row by the template row.
-		times: widget.NewLabel("\n"),
-		more:  widget.NewButtonWithIcon("", theme.MoreHorizontalIcon(), nil),
+		times:     widget.NewLabel("\n"),
+		intervals: widget.NewButton(message{"tasks.intervals", "Intervals"}.String(), nil),
+		edit:      widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), nil),
+		remove:    widget.NewButtonWithIcon("", theme.NewErrorThemedResource(theme.DeleteIcon()), nil),
 	}
 	row.name.Truncation = fyne.TextTruncateEllipsis
 	row.name.SizeName = theme.SizeNameSubHeadingText
@@ -52,14 +64,15 @@ func (row *taskRow) CreateRenderer() fyne.WidgetRenderer {
 	background.CornerRadius = theme.InputRadiusSize()
 
 	details := container.NewVBox(row.name, row.note)
-	times := container.NewVBox(container.NewHBox(layout.NewSpacer(), row.more), row.times)
+	buttons := container.NewHBox(layout.NewSpacer(), row.intervals, row.edit, row.remove)
+	times := container.NewVBox(buttons, row.times)
 	toggle := container.NewThemeOverride(row.toggle, cardTheme{iconScale: toggleIconScale})
 	content := container.NewBorder(nil, nil, container.NewVBox(toggle), times, details)
 	card := container.NewStack(background, container.NewPadded(container.NewThemeOverride(content, cardTheme{})))
 	return &taskRowRenderer{WidgetRenderer: widget.NewSimpleRenderer(card), background: background}
 }
 
-func (row *taskRow) show(summary tracking.TaskSummary, onToggle func(), onMore func(anchor fyne.CanvasObject)) {
+func (row *taskRow) show(summary tracking.TaskSummary, actions taskActions) {
 	row.name.SetText(summary.Task.Name)
 	row.name.TextStyle.Bold = summary.Running
 	row.note.SetText(firstLine(summary.Task.Note))
@@ -77,8 +90,10 @@ func (row *taskRow) show(summary tracking.TaskSummary, onToggle func(), onMore f
 		row.toggle.SetIcon(theme.MediaPlayIcon())
 		row.toggle.Importance = widget.MediumImportance
 	}
-	row.toggle.OnTapped = onToggle
-	row.more.OnTapped = func() { onMore(row.more) }
+	row.toggle.OnTapped = actions.toggle
+	row.intervals.OnTapped = actions.intervals
+	row.edit.OnTapped = actions.edit
+	row.remove.OnTapped = actions.remove
 	row.Refresh()
 }
 

@@ -72,24 +72,13 @@ func (tab *tasksTab) showRow(index widget.ListItemID, object fyne.CanvasObject) 
 	if index >= len(tab.summaries) {
 		return
 	}
-	summary := tab.summaries[index]
-	object.(*taskRow).show(
-		summary,
-		func() { reportError(tab.window, tab.tracker.Toggle(summary.Task.ID)) },
-		func(anchor fyne.CanvasObject) { tab.showTaskMenu(summary.Task, anchor) },
-	)
-}
-
-func (tab *tasksTab) showTaskMenu(task tracking.Task, anchor fyne.CanvasObject) {
-	menu := fyne.NewMenu("",
-		fyne.NewMenuItem(message{"tasks.edit", "Edit"}.String(), func() { tab.showTaskForm(task) }),
-		fyne.NewMenuItem(message{"tasks.intervals", "Intervals"}.String(), func() {
-			showIntervalEditor(tab.tracker, tab.window, task)
-		}),
-		fyne.NewMenuItem(message{"tasks.delete", "Delete"}.String(), func() { tab.confirmDelete(task) }),
-	)
-	canvas := fyne.CurrentApp().Driver().CanvasForObject(anchor)
-	widget.ShowPopUpMenuAtRelativePosition(menu, canvas, fyne.NewPos(0, anchor.Size().Height), anchor)
+	task := tab.summaries[index].Task
+	object.(*taskRow).show(tab.summaries[index], taskActions{
+		toggle:    func() { reportError(tab.window, tab.tracker.Toggle(task.ID)) },
+		intervals: func() { showIntervalEditor(tab.tracker, tab.window, task) },
+		edit:      func() { tab.showTaskForm(task) },
+		remove:    func() { tab.confirmDelete(task) },
+	})
 }
 
 func (tab *tasksTab) showTaskForm(task tracking.Task) {
