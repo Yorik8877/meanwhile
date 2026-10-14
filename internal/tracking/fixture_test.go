@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"stopwatch/internal/tracking"
-	"stopwatch/internal/tracking/memory"
+	"github.com/yorik8877/meanwhile/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking/memory"
 )
 
 type manualClock struct {

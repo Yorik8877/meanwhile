@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 func TestCreateTaskTrimsNameAndRejectsEmptyName(t *testing.T) {

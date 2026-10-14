@@ -11,7 +11,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 // toggleIconScale makes the start/pause button the most prominent control

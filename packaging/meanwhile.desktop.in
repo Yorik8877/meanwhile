@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Meanwhile
+Comment=Pocket watch for parallel tasks
+Comment[ru]=Карманные часы для параллельных задач
+Exec="@BINARY@"
+Icon=io.github.yorik8877.meanwhile
+Terminal=false
+Categories=Utility;

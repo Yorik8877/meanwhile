@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"stopwatch/internal/storage"
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/storage"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 func openStore(t *testing.T, path string) *storage.Store {
@@ -29,7 +29,7 @@ func mustSucceed(t *testing.T, err error) {
 var morning = time.Date(2026, time.October, 14, 9, 0, 0, 0, time.UTC)
 
 func TestDataSurvivesReopening(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "my stopwatch ä.db")
+	path := filepath.Join(t.TempDir(), "my meanwhile ä.db")
 	store := openStore(t, path)
 	taskID, err := store.InsertTask(tracking.Task{Name: "Task", Note: "note", CreatedAt: morning})
 	mustSucceed(t, err)
@@ -60,7 +60,7 @@ func TestDataSurvivesReopening(t *testing.T) {
 }
 
 func TestHeartbeatIsZeroWhenNeverSaved(t *testing.T) {
-	store := openStore(t, filepath.Join(t.TempDir(), "stopwatch.db"))
+	store := openStore(t, filepath.Join(t.TempDir(), "meanwhile.db"))
 
 	heartbeat, err := store.Heartbeat()
 
@@ -71,7 +71,7 @@ func TestHeartbeatIsZeroWhenNeverSaved(t *testing.T) {
 }
 
 func TestSecondRunningIntervalOfTaskIsRejected(t *testing.T) {
-	store := openStore(t, filepath.Join(t.TempDir(), "stopwatch.db"))
+	store := openStore(t, filepath.Join(t.TempDir(), "meanwhile.db"))
 	taskID, err := store.InsertTask(tracking.Task{Name: "Task", CreatedAt: morning})
 	mustSucceed(t, err)
 	_, err = store.InsertInterval(tracking.Interval{TaskID: taskID, StartedAt: morning})
@@ -85,7 +85,7 @@ func TestSecondRunningIntervalOfTaskIsRejected(t *testing.T) {
 }
 
 func TestDeletingTaskDeletesItsIntervals(t *testing.T) {
-	store := openStore(t, filepath.Join(t.TempDir(), "stopwatch.db"))
+	store := openStore(t, filepath.Join(t.TempDir(), "meanwhile.db"))
 	taskID, err := store.InsertTask(tracking.Task{Name: "Task", CreatedAt: morning})
 	mustSucceed(t, err)
 	_, err = store.InsertInterval(tracking.Interval{TaskID: taskID, StartedAt: morning, StoppedAt: morning.Add(time.Hour)})
@@ -101,7 +101,7 @@ func TestDeletingTaskDeletesItsIntervals(t *testing.T) {
 }
 
 func TestUpdateIntervalsIsAllOrNothing(t *testing.T) {
-	store := openStore(t, filepath.Join(t.TempDir(), "stopwatch.db"))
+	store := openStore(t, filepath.Join(t.TempDir(), "meanwhile.db"))
 	taskID, err := store.InsertTask(tracking.Task{Name: "Task", CreatedAt: morning})
 	mustSucceed(t, err)
 	intervalID, err := store.InsertInterval(tracking.Interval{TaskID: taskID, StartedAt: morning})
@@ -123,7 +123,7 @@ func TestUpdateIntervalsIsAllOrNothing(t *testing.T) {
 }
 
 func TestEndBeforeStartIsRejectedByDatabase(t *testing.T) {
-	store := openStore(t, filepath.Join(t.TempDir(), "stopwatch.db"))
+	store := openStore(t, filepath.Join(t.TempDir(), "meanwhile.db"))
 	taskID, err := store.InsertTask(tracking.Task{Name: "Task", CreatedAt: morning})
 	mustSucceed(t, err)
 
@@ -135,7 +135,7 @@ func TestEndBeforeStartIsRejectedByDatabase(t *testing.T) {
 }
 
 func TestLanguageIsEmptyUntilSavedAndSurvivesReopening(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "stopwatch.db")
+	path := filepath.Join(t.TempDir(), "meanwhile.db")
 	store := openStore(t, path)
 
 	language, err := store.Language()

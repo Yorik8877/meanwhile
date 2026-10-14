@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"stopwatch/internal/autostart"
+	"github.com/yorik8877/meanwhile/internal/autostart"
 )
 
 func mustSucceed(t *testing.T, err error) {
@@ -25,13 +25,13 @@ func isEnabled(t *testing.T, entry *autostart.Entry) bool {
 
 func readEntry(t *testing.T, configDir string) string {
 	t.Helper()
-	content, err := os.ReadFile(filepath.Join(configDir, "autostart", "io.github.stopwatch.desktop"))
+	content, err := os.ReadFile(filepath.Join(configDir, "autostart", "io.github.yorik8877.meanwhile.desktop"))
 	mustSucceed(t, err)
 	return string(content)
 }
 
 func TestEntryIsDisabledWhenFileIsMissing(t *testing.T) {
-	entry := autostart.NewEntry(t.TempDir(), "/home/user/.local/bin/stopwatch")
+	entry := autostart.NewEntry(t.TempDir(), "/home/user/.local/bin/meanwhile")
 
 	if isEnabled(t, entry) {
 		t.Error("enabled without an autostart file")
@@ -40,21 +40,21 @@ func TestEntryIsDisabledWhenFileIsMissing(t *testing.T) {
 
 func TestEnablingWritesHiddenStartOfExecutable(t *testing.T) {
 	configDir := t.TempDir()
-	entry := autostart.NewEntry(configDir, "/home/user/.local/bin/stopwatch")
+	entry := autostart.NewEntry(configDir, "/home/user/.local/bin/meanwhile")
 
 	mustSucceed(t, entry.SetEnabled(true))
 
 	if !isEnabled(t, entry) {
 		t.Fatal("not enabled after enabling")
 	}
-	if content := readEntry(t, configDir); !strings.Contains(content, "\nExec=\"/home/user/.local/bin/stopwatch\" --hidden\n") {
+	if content := readEntry(t, configDir); !strings.Contains(content, "\nExec=\"/home/user/.local/bin/meanwhile\" --hidden\n") {
 		t.Errorf("entry has no hidden start of the executable:\n%s", content)
 	}
 }
 
 func TestDisablingRemovesFile(t *testing.T) {
 	configDir := t.TempDir()
-	entry := autostart.NewEntry(configDir, "/usr/bin/stopwatch")
+	entry := autostart.NewEntry(configDir, "/usr/bin/meanwhile")
 	mustSucceed(t, entry.SetEnabled(true))
 
 	mustSucceed(t, entry.SetEnabled(false))
@@ -69,9 +69,9 @@ func TestEntryDisabledByDesktopIsReportedAndCanBeEnabledAgain(t *testing.T) {
 	for _, disablingLine := range []string{"X-GNOME-Autostart-enabled=false", "Hidden=true"} {
 		t.Run(disablingLine, func(t *testing.T) {
 			configDir := t.TempDir()
-			entry := autostart.NewEntry(configDir, "/usr/bin/stopwatch")
+			entry := autostart.NewEntry(configDir, "/usr/bin/meanwhile")
 			mustSucceed(t, entry.SetEnabled(true))
-			path := filepath.Join(configDir, "autostart", "io.github.stopwatch.desktop")
+			path := filepath.Join(configDir, "autostart", "io.github.yorik8877.meanwhile.desktop")
 			mustSucceed(t, os.WriteFile(path, []byte(readEntry(t, configDir)+disablingLine+"\n"), 0o644))
 
 			if isEnabled(t, entry) {

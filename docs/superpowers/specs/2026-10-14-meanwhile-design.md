@@ -1,4 +1,4 @@
-# Секундомер задач: дизайн
+# Meanwhile — карманные часы для параллельных задач: дизайн
 
 Дата: 2026-10-14
 Статус: на ревью
@@ -64,7 +64,7 @@
 ## 4. Архитектура
 
 ```text
-cmd/stopwatch/        точка входа: разбор флагов, создание и связывание компонентов
+cmd/meanwhile/        точка входа: разбор флагов, создание и связывание компонентов
 internal/tracking/    предметная область: задачи, отрезки, подсчёт времени
 internal/storage/     реализация хранилища на SQLite
 internal/power/       сигналы о сне и выключении от login1
@@ -127,8 +127,8 @@ internal/ui/          окно, вкладки, редактор отрезко�
 ### 4.4. instance
 
 1. При запуске берёт эксклюзивную блокировку `flock` на файл
-   `<runtime-dir>/stopwatch.lock`.
-2. Получив блокировку, слушает Unix-сокет `<runtime-dir>/stopwatch.sock`
+   `<runtime-dir>/meanwhile.lock`.
+2. Получив блокировку, слушает Unix-сокет `<runtime-dir>/meanwhile.sock`
    (старый файл сокета перед этим удаляется).
 3. Не получив блокировку, подключается к сокету, отправляет команду `show`
    и завершает процесс с кодом 0.
@@ -141,7 +141,7 @@ internal/ui/          окно, вкладки, редактор отрезко�
 
 Путь к Unix-сокету в Linux ограничен 107 байтами. Если путь длиннее
 (например, при глубокой папке `--data-dir`), используется абстрактный сокет
-Linux с именем `stopwatch.sock-<хэш пути>`: у него нет файла и нет ограничения
+Linux с именем `meanwhile.sock-<хэш пути>`: у него нет файла и нет ограничения
 на длину пути к папке.
 
 ### 4.5. ui
@@ -293,7 +293,7 @@ Linux с именем `stopwatch.sock-<хэш пути>`: у него нет ф�
 - «Язык: [Как в системе / Русский / English]» — применяется сразу,
   хранится в `app_state` под ключом `language`;
 - «Запускать при входе в систему» — программа сама создаёт или удаляет
-  `$XDG_CONFIG_HOME/autostart/io.github.stopwatch.desktop` с запуском
+  `$XDG_CONFIG_HOME/autostart/io.github.yorik8877.meanwhile.desktop` с запуском
   своего бинарника и флагом `--hidden`. Автозапуск считается включённым,
   если файл есть и в нём нет `X-GNOME-Autostart-enabled=false` или
   `Hidden=true` (так его выключают системные настройки автозапуска).
@@ -322,9 +322,9 @@ Linux с именем `stopwatch.sock-<хэш пути>`: у него нет ф�
 
 | Что | Путь по умолчанию | Переменная XDG |
 | --- | --- | --- |
-| База | `~/.local/share/stopwatch/stopwatch.db` (+ `-wal`, `-shm`) | `XDG_DATA_HOME` |
-| Лог | `~/.local/state/stopwatch/stopwatch.log` | `XDG_STATE_HOME` |
-| Замок и сокет | `$XDG_RUNTIME_DIR/stopwatch.{lock,sock}` | `XDG_RUNTIME_DIR` |
+| База | `~/.local/share/meanwhile/meanwhile.db` (+ `-wal`, `-shm`) | `XDG_DATA_HOME` |
+| Лог | `~/.local/state/meanwhile/meanwhile.log` | `XDG_STATE_HOME` |
+| Замок и сокет | `$XDG_RUNTIME_DIR/meanwhile.{lock,sock}` | `XDG_RUNTIME_DIR` |
 
 Флаги:
 
@@ -338,9 +338,9 @@ Linux с именем `stopwatch.sock-<хэш пути>`: у него нет ф�
 
 | Команда | Действие |
 | --- | --- |
-| `make build` | собирает `bin/stopwatch` |
+| `make build` | собирает `bin/meanwhile` |
 | `make test` | запускает тесты |
-| `make install` | копирует бинарник в `$(BIN_DIR)`, `.desktop`-файл в `~/.local/share/applications/`, иконку `io.github.stopwatch.svg` в `~/.local/share/icons/hicolor/scalable/apps/`; автозапуск не включает |
+| `make install` | копирует бинарник в `$(BIN_DIR)`, `.desktop`-файл в `~/.local/share/applications/`, иконку `io.github.yorik8877.meanwhile.svg` в `~/.local/share/icons/hicolor/scalable/apps/`; автозапуск не включает |
 | `make uninstall` | удаляет установленные файлы и файл автозапуска, данные не трогает |
 | `make uninstall PURGE=1` | дополнительно спрашивает подтверждение `[y/N]` и удаляет папки данных и логов; без терминала ответ считается «нет» |
 
@@ -367,7 +367,7 @@ Linux с именем `stopwatch.sock-<хэш пути>`: у него нет ф�
 
 ## 12. Допущения, принятые без отдельного обсуждения
 
-- Имя Go-модуля — `stopwatch`; его легко сменить позже.
+- Имя Go-модуля — `github.com/yorik8877/meanwhile`, идентификатор приложения — `io.github.yorik8877.meanwhile`.
 - После сна и перезапуска таймеры не возобновляются автоматически.
 - Неделя в истории начинается с понедельника для обоих языков.
 - Повторяющиеся названия задач допустимы.

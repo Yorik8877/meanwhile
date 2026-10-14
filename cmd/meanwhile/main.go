@@ -1,4 +1,4 @@
-// Command stopwatch tracks time spent on tasks that run in parallel. It lives
+// Command meanwhile tracks time spent on tasks that run in parallel. It lives
 // in the system tray; a left click on the tray icon opens its window.
 package main
 
@@ -14,17 +14,17 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 
-	"stopwatch/internal/autostart"
-	"stopwatch/internal/instance"
-	"stopwatch/internal/power"
-	"stopwatch/internal/storage"
-	"stopwatch/internal/tracking"
-	"stopwatch/internal/ui"
+	"github.com/yorik8877/meanwhile/internal/autostart"
+	"github.com/yorik8877/meanwhile/internal/instance"
+	"github.com/yorik8877/meanwhile/internal/power"
+	"github.com/yorik8877/meanwhile/internal/storage"
+	"github.com/yorik8877/meanwhile/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/ui"
 )
 
 const (
-	applicationID     = "io.github.stopwatch"
-	databaseFileName  = "stopwatch.db"
+	applicationID     = "io.github.yorik8877.meanwhile"
+	databaseFileName  = "meanwhile.db"
 	heartbeatInterval = time.Minute
 	exitSuccess       = 0
 	exitFailure       = 1
@@ -50,12 +50,12 @@ func parseOptions() options {
 func run(options options) int {
 	resolved, err := prepareLocations(options.dataDirOverride)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "stopwatch:", err)
+		fmt.Fprintln(os.Stderr, "meanwhile:", err)
 		return exitFailure
 	}
 	closeLog, err := setupLogging(resolved.StateDir)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "stopwatch:", err)
+		fmt.Fprintln(os.Stderr, "meanwhile:", err)
 		return exitFailure
 	}
 	defer closeLog()

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 // The fixture clock is 2026-10-14 10:00 UTC.

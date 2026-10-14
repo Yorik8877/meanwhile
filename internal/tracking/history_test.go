@@ -5,7 +5,7 @@ import (
 	"time"
 	_ "time/tzdata"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 func TestDailyTotalsSplitIntervalsAtLocalMidnight(t *testing.T) {

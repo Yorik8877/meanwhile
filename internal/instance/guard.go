@@ -21,8 +21,8 @@ import (
 var ErrAlreadyRunning = errors.New("another instance is already running")
 
 const (
-	lockFileName      = "stopwatch.lock"
-	socketFileName    = "stopwatch.sock"
+	lockFileName      = "meanwhile.lock"
+	socketFileName    = "meanwhile.sock"
 	showCommand       = "show"
 	connectionTimeout = 2 * time.Second
 	// maxSocketPathBytes is the size of sun_path in sockaddr_un on Linux

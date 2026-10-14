@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 const daysPerWeek = 7

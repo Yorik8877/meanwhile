@@ -6,8 +6,8 @@ import (
 
 	"fyne.io/fyne/v2/test"
 
-	"stopwatch/internal/tracking"
-	"stopwatch/internal/tracking/memory"
+	"github.com/yorik8877/meanwhile/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking/memory"
 )
 
 func newTestTracker(t *testing.T) *tracking.Tracker {

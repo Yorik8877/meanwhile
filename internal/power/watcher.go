@@ -98,7 +98,7 @@ func (inhibitor *login1Inhibitor) acquire() error {
 	}
 	var descriptor dbus.UnixFD
 	err := inhibitor.manager.Call(managerInterface+".Inhibit", 0,
-		"sleep:shutdown", "Stopwatch", "Pausing running timers", "delay",
+		"sleep:shutdown", "Meanwhile", "Pausing running timers", "delay",
 	).Store(&descriptor)
 	if err != nil {
 		return err

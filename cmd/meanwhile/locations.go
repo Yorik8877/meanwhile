@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-const applicationDirectoryName = "stopwatch"
+const applicationDirectoryName = "meanwhile"
 
 type locations struct {
 	DataDir    string

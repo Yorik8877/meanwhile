@@ -9,7 +9,7 @@ import (
 // ShowStartupError shows why the program cannot start and blocks until the
 // user closes the window.
 func ShowStartupError(application fyne.App, databasePath string, err error) {
-	window := application.NewWindow(message{"app.title", "Stopwatch"}.String())
+	window := application.NewWindow(message{"app.title", "Meanwhile"}.String())
 	text := widget.NewLabel(message{"startup.database_error", "Cannot open the database {{.Path}}: {{.Error}}"}.With(map[string]any{
 		"Path":  databasePath,
 		"Error": err.Error(),

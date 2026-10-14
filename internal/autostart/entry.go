@@ -12,16 +12,15 @@ import (
 	"strings"
 )
 
-const entryFileName = "io.github.stopwatch.desktop"
+const entryFileName = "io.github.yorik8877.meanwhile.desktop"
 
 const entryTemplate = `[Desktop Entry]
 Type=Application
-Name=Stopwatch
-Name[ru]=Секундомер
-Comment=Track time spent on parallel tasks
-Comment[ru]=Учёт времени по параллельным задачам
+Name=Meanwhile
+Comment=Pocket watch for parallel tasks
+Comment[ru]=Карманные часы для параллельных задач
 Exec=%s --hidden
-Icon=io.github.stopwatch
+Icon=io.github.yorik8877.meanwhile
 Terminal=false
 X-GNOME-Autostart-enabled=true
 `

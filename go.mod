@@ -1,4 +1,4 @@
-module stopwatch
+module github.com/yorik8877/meanwhile
 
 go 1.26.0
 

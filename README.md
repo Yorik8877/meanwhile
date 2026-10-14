@@ -1,4 +1,6 @@
-# Секундомер задач
+# Meanwhile
+
+Карманные часы для параллельных задач.
 
 Учёт времени по задачам, которые идут параллельно. Программа живёт в трее:
 левый клик по иконке открывает окно, правый — меню с задачами.
@@ -33,7 +35,7 @@
 
 ```sh
 make test        # тесты
-make build       # bin/stopwatch
+make build       # bin/meanwhile
 make install     # установка в домашнюю папку, sudo не нужен
 ```
 
@@ -63,9 +65,9 @@ make uninstall PURGE=1   # спрашивает и удаляет ещё баз�
 
 | Что | Путь |
 | --- | --- |
-| База SQLite | `~/.local/share/stopwatch/stopwatch.db` (или `$XDG_DATA_HOME/stopwatch/`) |
-| Лог | `~/.local/state/stopwatch/stopwatch.log` (или `$XDG_STATE_HOME/stopwatch/`) |
-| Замок и сокет единственного экземпляра | `$XDG_RUNTIME_DIR/stopwatch.{lock,sock}` |
+| База SQLite | `~/.local/share/meanwhile/meanwhile.db` (или `$XDG_DATA_HOME/meanwhile/`) |
+| Лог | `~/.local/state/meanwhile/meanwhile.log` (или `$XDG_STATE_HOME/meanwhile/`) |
+| Замок и сокет единственного экземпляра | `$XDG_RUNTIME_DIR/meanwhile.{lock,sock}` |
 
 ## Флаги
 
@@ -79,10 +81,10 @@ make uninstall PURGE=1   # спрашивает и удаляет ещё баз�
 
 ## Устройство
 
-Дизайн описан в [docs/superpowers/specs/2026-10-14-stopwatch-design.md](docs/superpowers/specs/2026-10-14-stopwatch-design.md).
+Дизайн описан в [docs/superpowers/specs/2026-10-14-meanwhile-design.md](docs/superpowers/specs/2026-10-14-meanwhile-design.md).
 
 ```text
-cmd/stopwatch/       точка входа: флаги, пути, лог, связывание компонентов
+cmd/meanwhile/       точка входа: флаги, пути, лог, связывание компонентов
 internal/tracking/   задачи, отрезки, подсчёт времени (без Fyne и SQLite)
 internal/storage/    хранение в SQLite
 internal/power/      пауза при сне и выключении через login1

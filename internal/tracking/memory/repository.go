@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 var errNotFound = errors.New("not found")

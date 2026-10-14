@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	logFileName = "stopwatch.log"
+	logFileName = "meanwhile.log"
 	// maxLogSizeBytes keeps the log from growing forever: a larger log is
 	// cleared at startup.
 	maxLogSizeBytes = 1 << 20

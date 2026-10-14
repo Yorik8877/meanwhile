@@ -10,9 +10,9 @@ func TestResolveLocationsUsesDefaultsUnderHome(t *testing.T) {
 	resolved := resolveLocations(environmentOf(nil), "/home/user", "")
 
 	want := locations{
-		DataDir:    "/home/user/.local/share/stopwatch",
-		StateDir:   "/home/user/.local/state/stopwatch",
-		RuntimeDir: "/home/user/.local/state/stopwatch",
+		DataDir:    "/home/user/.local/share/meanwhile",
+		StateDir:   "/home/user/.local/state/meanwhile",
+		RuntimeDir: "/home/user/.local/state/meanwhile",
 		ConfigHome: "/home/user/.config",
 	}
 	if resolved != want {
@@ -30,7 +30,7 @@ func TestResolveLocationsHonoursXDGVariables(t *testing.T) {
 
 	resolved := resolveLocations(environment, "/home/user", "")
 
-	want := locations{DataDir: "/data/stopwatch", StateDir: "/state/stopwatch", RuntimeDir: "/run/user/1000", ConfigHome: "/config"}
+	want := locations{DataDir: "/data/meanwhile", StateDir: "/state/meanwhile", RuntimeDir: "/run/user/1000", ConfigHome: "/config"}
 	if resolved != want {
 		t.Errorf("locations = %+v, want %+v", resolved, want)
 	}
@@ -41,7 +41,7 @@ func TestResolveLocationsIgnoresRelativeXDGPaths(t *testing.T) {
 
 	resolved := resolveLocations(environment, "/home/user", "")
 
-	if resolved.DataDir != "/home/user/.local/share/stopwatch" || resolved.RuntimeDir != "/home/user/.local/state/stopwatch" {
+	if resolved.DataDir != "/home/user/.local/share/meanwhile" || resolved.RuntimeDir != "/home/user/.local/state/meanwhile" {
 		t.Errorf("locations = %+v, want defaults", resolved)
 	}
 }

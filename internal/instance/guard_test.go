@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"stopwatch/internal/instance"
+	"github.com/yorik8877/meanwhile/internal/instance"
 )
 
 func acquire(t *testing.T, directory string) *instance.Guard {
@@ -65,7 +65,7 @@ func TestLockIsReleasedOnClose(t *testing.T) {
 
 func TestStaleSocketFileIsReplaced(t *testing.T) {
 	directory := t.TempDir()
-	if err := os.WriteFile(filepath.Join(directory, "stopwatch.sock"), nil, 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(directory, "meanwhile.sock"), nil, 0o600); err != nil {
 		t.Fatal(err)
 	}
 

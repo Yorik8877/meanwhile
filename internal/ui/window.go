@@ -9,7 +9,7 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 type MainWindow struct {
@@ -62,7 +62,7 @@ func (mainWindow *MainWindow) RunTicker(stop <-chan struct{}) {
 // after the language changes, because every widget takes its text when it
 // is created.
 func (mainWindow *MainWindow) build() {
-	mainWindow.window.SetTitle(message{"app.title", "Stopwatch"}.String())
+	mainWindow.window.SetTitle(message{"app.title", "Meanwhile"}.String())
 	mainWindow.tasks = newTasksTab(mainWindow.tracker, mainWindow.window)
 	mainWindow.history = newHistoryTab(mainWindow.tracker)
 	mainWindow.tasksItem = container.NewTabItem(message{"tab.tasks", "Tasks"}.String(), mainWindow.tasks.content)

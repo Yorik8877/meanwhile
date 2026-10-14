@@ -10,7 +10,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 const (

@@ -7,7 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/driver/desktop"
 
-	"stopwatch/internal/tracking"
+	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
 const trayTaskLimit = 10
@@ -35,7 +35,7 @@ func installTray(application fyne.App, window fyne.Window, tracker *tracking.Tra
 }
 
 func (tray *tray) refresh() {
-	tray.desktopApp.SetSystemTrayMenu(fyne.NewMenu(message{"app.title", "Stopwatch"}.String(), tray.menuItems()...))
+	tray.desktopApp.SetSystemTrayMenu(fyne.NewMenu(message{"app.title", "Meanwhile"}.String(), tray.menuItems()...))
 	tray.updateIcon(tray.tracker.AnyRunning())
 }
 

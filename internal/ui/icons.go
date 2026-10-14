@@ -14,6 +14,6 @@ var runningIconContent []byte
 
 var (
 	// AppIcon is also installed as the desktop menu icon by the Makefile.
-	AppIcon     = fyne.NewStaticResource("stopwatch.svg", idleIconContent)
-	runningIcon = fyne.NewStaticResource("stopwatch-running.svg", runningIconContent)
+	AppIcon     = fyne.NewStaticResource("meanwhile.svg", idleIconContent)
+	runningIcon = fyne.NewStaticResource("meanwhile-running.svg", runningIconContent)
 )
