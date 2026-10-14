@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M37 7 Q50 1 58 12" fill="none" stroke="#2e9e5b" stroke-width="3" stroke-linecap="round" stroke-dasharray="3.5 3"/>
-  <circle cx="32" cy="8" r="4.5" fill="none" stroke="#2e9e5b" stroke-width="3.5"/>
-  <rect x="28.5" y="12" width="7" height="6" rx="1.5" fill="#2e9e5b"/>
-  <circle cx="32" cy="39" r="23" fill="#2e9e5b"/>
-  <circle cx="32" cy="39" r="17.5" fill="#ffffff"/>
+  <g transform="rotate(22 32 39)">
+    <path d="M27 7 Q14 1 6 12" fill="none" stroke="#2e9e5b" stroke-width="3" stroke-linecap="round" stroke-dasharray="3.5 3"/>
+    <circle cx="32" cy="8" r="4.5" fill="none" stroke="#2e9e5b" stroke-width="3.5"/>
+    <rect x="28.5" y="12" width="7" height="6" rx="1.5" fill="#2e9e5b"/>
+    <circle cx="32" cy="39" r="23" fill="#2e9e5b"/>
+    <circle cx="32" cy="39" r="17.5" fill="#ffffff"/>
+  </g>
   <g stroke="#1f7a44" stroke-width="4" stroke-linecap="round">
     <path d="M32 39 L32 29"/>
     <path d="M32 39 L40 34"/>
