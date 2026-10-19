@@ -75,7 +75,7 @@
   "settings.autostart": "Запускать при входе в систему",
   "tab.completed": "Завершённые",
   "completed.reopen": "Вернуть в работу",
-  "completed.completed_on": "Завершена {{.Date}}",
+  "completed.completed_on": "Завершена {{.Moment}}",
   "completed.empty": "Завершённых задач нет.",
   "error.task_completed": "Задача завершена. Сначала верните её в работу."
 }

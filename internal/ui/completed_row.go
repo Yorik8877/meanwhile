@@ -24,6 +24,9 @@ type completedRow struct {
 	remove    *widget.Button
 }
 
+// completionMomentLayout shows the completion moment as "2026-10-19 13:45".
+const completionMomentLayout = "2006-01-02 15:04"
+
 type completedActions struct {
 	reopen    func()
 	intervals func()
@@ -58,9 +61,8 @@ func (row *completedRow) CreateRenderer() fyne.WidgetRenderer {
 func (row *completedRow) show(summary tracking.TaskSummary, actions completedActions) {
 	row.name.SetText(summary.Task.Name)
 	row.note.SetText(firstLine(summary.Task.Note))
-	completedOn := tracking.DateOf(summary.Task.CompletedAt.In(time.Local))
-	row.details.SetText(message{"completed.completed_on", "Completed {{.Date}}"}.With(map[string]any{
-		"Date": formatShortDate(completedOn),
+	row.details.SetText(message{"completed.completed_on", "Completed {{.Moment}}"}.With(map[string]any{
+		"Moment": summary.Task.CompletedAt.In(time.Local).Format(completionMomentLayout),
 	}) + "\n" + message{"tasks.total", "Total {{.Duration}}"}.With(map[string]any{
 		"Duration": formatDuration(summary.Total),
 	}))

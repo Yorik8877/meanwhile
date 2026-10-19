@@ -75,7 +75,7 @@
   "settings.autostart": "Start at login",
   "tab.completed": "Completed",
   "completed.reopen": "Reopen",
-  "completed.completed_on": "Completed {{.Date}}",
+  "completed.completed_on": "Completed {{.Moment}}",
   "completed.empty": "No completed tasks.",
   "error.task_completed": "The task is completed. Reopen it first."
 }
