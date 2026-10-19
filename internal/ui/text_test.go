@@ -57,6 +57,7 @@ func TestComposeMoment(t *testing.T) {
 var userFacingErrors = []error{
 	tracking.ErrEmptyName,
 	tracking.ErrTaskNotFound,
+	tracking.ErrTaskCompleted,
 	tracking.ErrIntervalNotFound,
 	tracking.ErrMissingEnd,
 	tracking.ErrEndBeforeStart,

@@ -108,11 +108,7 @@ func (tracker *Tracker) UpdateTask(id TaskID, name, note string) error {
 		}
 		task.Name = trimmedName
 		task.Note = note
-		if err := tracker.repository.UpdateTask(task); err != nil {
-			return fmt.Errorf("update task: %w", err)
-		}
-		tracker.tasks[id] = task
-		return nil
+		return tracker.storeTask(task)
 	})
 }
 
@@ -134,11 +130,16 @@ func (tracker *Tracker) DeleteTask(id TaskID) error {
 	})
 }
 
-// Start does nothing when the task is already running.
+// Start does nothing when the task is already running. A completed task
+// has to be reopened first.
 func (tracker *Tracker) Start(id TaskID) error {
 	return tracker.change(func() error {
-		if _, found := tracker.tasks[id]; !found {
+		task, found := tracker.tasks[id]
+		if !found {
 			return ErrTaskNotFound
+		}
+		if task.IsCompleted() {
+			return ErrTaskCompleted
 		}
 		if _, running := tracker.runningInterval(id); running {
 			return nil
@@ -210,6 +211,14 @@ func (tracker *Tracker) change(mutation func() error) error {
 	for _, listener := range listeners {
 		listener()
 	}
+	return nil
+}
+
+func (tracker *Tracker) storeTask(task Task) error {
+	if err := tracker.repository.UpdateTask(task); err != nil {
+		return fmt.Errorf("update task: %w", err)
+	}
+	tracker.tasks[task.ID] = task
 	return nil
 }
 

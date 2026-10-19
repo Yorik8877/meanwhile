@@ -6,11 +6,17 @@ type TaskID int64
 
 type IntervalID int64
 
+// Task is in progress while CompletedAt is zero.
 type Task struct {
-	ID        TaskID
-	Name      string
-	Note      string
-	CreatedAt time.Time
+	ID          TaskID
+	Name        string
+	Note        string
+	CreatedAt   time.Time
+	CompletedAt time.Time
+}
+
+func (task Task) IsCompleted() bool {
+	return !task.CompletedAt.IsZero()
 }
 
 // Interval is a span of work on a task. A zero StoppedAt means the interval

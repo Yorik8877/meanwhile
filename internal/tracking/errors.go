@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrEmptyName          = errors.New("task name is empty")
 	ErrTaskNotFound       = errors.New("task not found")
+	ErrTaskCompleted      = errors.New("cannot start a completed task")
 	ErrIntervalNotFound   = errors.New("interval not found")
 	ErrMissingEnd         = errors.New("interval end is missing")
 	ErrEndBeforeStart     = errors.New("interval end is not after its start")

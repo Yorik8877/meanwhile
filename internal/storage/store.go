@@ -79,7 +79,7 @@ func (store *Store) applyMigration(fromVersion int) error {
 }
 
 func (store *Store) Tasks() ([]tracking.Task, error) {
-	rows, err := store.database.Query("SELECT id, name, note, created_at FROM tasks ORDER BY id")
+	rows, err := store.database.Query("SELECT id, name, note, created_at, completed_at FROM tasks ORDER BY id")
 	if err != nil {
 		return nil, err
 	}
@@ -89,10 +89,14 @@ func (store *Store) Tasks() ([]tracking.Task, error) {
 	for rows.Next() {
 		var task tracking.Task
 		var createdAt int64
-		if err := rows.Scan(&task.ID, &task.Name, &task.Note, &createdAt); err != nil {
+		var completedAt sql.NullInt64
+		if err := rows.Scan(&task.ID, &task.Name, &task.Note, &createdAt, &completedAt); err != nil {
 			return nil, err
 		}
 		task.CreatedAt = fromMilliseconds(createdAt)
+		if completedAt.Valid {
+			task.CompletedAt = fromMilliseconds(completedAt.Int64)
+		}
 		tasks = append(tasks, task)
 	}
 	return tasks, rows.Err()
@@ -124,8 +128,8 @@ func (store *Store) Intervals() ([]tracking.Interval, error) {
 
 func (store *Store) InsertTask(task tracking.Task) (tracking.TaskID, error) {
 	result, err := store.database.Exec(
-		"INSERT INTO tasks (name, note, created_at) VALUES (?, ?, ?)",
-		task.Name, task.Note, task.CreatedAt.UnixMilli(),
+		"INSERT INTO tasks (name, note, created_at, completed_at) VALUES (?, ?, ?, ?)",
+		task.Name, task.Note, task.CreatedAt.UnixMilli(), nullableMilliseconds(task.CompletedAt),
 	)
 	if err != nil {
 		return 0, err
@@ -135,7 +139,10 @@ func (store *Store) InsertTask(task tracking.Task) (tracking.TaskID, error) {
 }
 
 func (store *Store) UpdateTask(task tracking.Task) error {
-	result, err := store.database.Exec("UPDATE tasks SET name = ?, note = ? WHERE id = ?", task.Name, task.Note, task.ID)
+	result, err := store.database.Exec(
+		"UPDATE tasks SET name = ?, note = ?, completed_at = ? WHERE id = ?",
+		task.Name, task.Note, nullableMilliseconds(task.CompletedAt), task.ID,
+	)
 	if err != nil {
 		return err
 	}

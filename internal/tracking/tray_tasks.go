@@ -31,6 +31,9 @@ func (tracker *Tracker) TrayTasks(limit int) []TrayTask {
 
 	trayTasks := make([]TrayTask, 0, len(tracker.tasks))
 	for _, task := range tracker.tasks {
+		if task.IsCompleted() {
+			continue
+		}
 		trayTasks = append(trayTasks, TrayTask{Task: task, Running: running[task.ID]})
 	}
 	slices.SortFunc(trayTasks, func(first, second TrayTask) int {

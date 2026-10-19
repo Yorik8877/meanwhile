@@ -22,7 +22,7 @@ func TestRecoverAfterCrashClosesIntervalsAtLastHeartbeat(t *testing.T) {
 	if restarted.AnyRunning() {
 		t.Fatal("interval still running after recovery")
 	}
-	if total := restarted.TaskSummaries()[0].Total; total != 20*time.Minute {
+	if total := restarted.ActiveTaskSummaries()[0].Total; total != 20*time.Minute {
 		t.Errorf("total = %v, want 20m", total)
 	}
 }

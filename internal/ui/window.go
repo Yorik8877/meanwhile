@@ -13,14 +13,16 @@ import (
 )
 
 type MainWindow struct {
-	window    fyne.Window
-	tracker   *tracking.Tracker
-	settings  Settings
-	tray      *tray
-	tabs      *container.AppTabs
-	tasksItem *container.TabItem
-	tasks     *tasksTab
-	history   *historyTab
+	window        fyne.Window
+	tracker       *tracking.Tracker
+	settings      Settings
+	tray          *tray
+	tabs          *container.AppTabs
+	tasksItem     *container.TabItem
+	completedItem *container.TabItem
+	tasks         *tasksTab
+	completed     *completedTab
+	history       *historyTab
 }
 
 // NewMainWindow builds the window and the tray icon. Closing the window only
@@ -64,10 +66,12 @@ func (mainWindow *MainWindow) RunTicker(stop <-chan struct{}) {
 func (mainWindow *MainWindow) build() {
 	mainWindow.window.SetTitle(message{"app.title", "Meanwhile"}.String())
 	mainWindow.tasks = newTasksTab(mainWindow.tracker, mainWindow.window)
+	mainWindow.completed = newCompletedTab(mainWindow.tracker, mainWindow.window)
 	mainWindow.history = newHistoryTab(mainWindow.tracker)
 	mainWindow.tasksItem = container.NewTabItem(message{"tab.tasks", "Tasks"}.String(), mainWindow.tasks.content)
+	mainWindow.completedItem = container.NewTabItem(message{"tab.completed", "Completed"}.String(), mainWindow.completed.content)
 	historyItem := container.NewTabItem(message{"tab.history", "History"}.String(), mainWindow.history.content)
-	mainWindow.tabs = container.NewAppTabs(mainWindow.tasksItem, historyItem)
+	mainWindow.tabs = container.NewAppTabs(mainWindow.tasksItem, mainWindow.completedItem, historyItem)
 	mainWindow.tabs.OnSelected = func(*container.TabItem) { mainWindow.refresh() }
 
 	// AppTabs has no place for extra buttons, so the settings button is laid
@@ -96,10 +100,14 @@ func (mainWindow *MainWindow) switchLanguage(code string) {
 	}
 }
 
+// refresh redraws only the visible tab; the others refresh when selected.
 func (mainWindow *MainWindow) refresh() {
-	if mainWindow.tabs.Selected() == mainWindow.tasksItem {
+	switch mainWindow.tabs.Selected() {
+	case mainWindow.tasksItem:
 		mainWindow.tasks.refresh()
-		return
+	case mainWindow.completedItem:
+		mainWindow.completed.refresh()
+	default:
+		mainWindow.history.refresh()
 	}
-	mainWindow.history.refresh()
 }

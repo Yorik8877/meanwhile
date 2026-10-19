@@ -1,6 +1,7 @@
 package storage_test
 
 import (
+	"database/sql"
 	"path/filepath"
 	"testing"
 	"time"
@@ -153,3 +154,57 @@ func TestLanguageIsEmptyUntilSavedAndSurvivesReopening(t *testing.T) {
 		t.Errorf("language after reopening = %q, want ru", language)
 	}
 }
+
+func TestCompletionSurvivesReopening(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "meanwhile.db")
+	store := openStore(t, path)
+	taskID, err := store.InsertTask(tracking.Task{Name: "Task", CreatedAt: morning})
+	mustSucceed(t, err)
+	mustSucceed(t, store.UpdateTask(tracking.Task{ID: taskID, Name: "Task", CompletedAt: morning.Add(time.Hour)}))
+	mustSucceed(t, store.Close())
+
+	tasks, err := openStore(t, path).Tasks()
+
+	mustSucceed(t, err)
+	if !tasks[0].CompletedAt.Equal(morning.Add(time.Hour)) {
+		t.Errorf("completed at = %v, want %v", tasks[0].CompletedAt, morning.Add(time.Hour))
+	}
+}
+
+// A database created by the first release must open with its tasks intact
+// and with every task still in progress.
+func TestFirstSchemaVersionIsUpgraded(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "meanwhile.db")
+	database, err := sql.Open("sqlite", path)
+	mustSucceed(t, err)
+	_, err = database.Exec(firstSchemaVersion + `
+		INSERT INTO tasks (id, name, note, created_at) VALUES (1, 'Old task', 'note', 1000);
+		PRAGMA user_version = 1;`)
+	mustSucceed(t, err)
+	mustSucceed(t, database.Close())
+
+	tasks, err := openStore(t, path).Tasks()
+
+	mustSucceed(t, err)
+	if len(tasks) != 1 || tasks[0].Name != "Old task" || !tasks[0].CompletedAt.IsZero() {
+		t.Errorf("tasks = %+v, want the old task in progress", tasks)
+	}
+}
+
+const firstSchemaVersion = `
+	CREATE TABLE tasks (
+		id         INTEGER PRIMARY KEY,
+		name       TEXT    NOT NULL,
+		note       TEXT    NOT NULL DEFAULT '',
+		created_at INTEGER NOT NULL
+	);
+	CREATE TABLE intervals (
+		id         INTEGER PRIMARY KEY,
+		task_id    INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+		started_at INTEGER NOT NULL,
+		stopped_at INTEGER CHECK (stopped_at IS NULL OR stopped_at >= started_at)
+	);
+	CREATE TABLE app_state (
+		key   TEXT PRIMARY KEY,
+		value TEXT NOT NULL
+	);`

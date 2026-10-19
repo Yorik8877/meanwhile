@@ -72,5 +72,10 @@
   "tasks.today": "Сегодня {{.Duration}}",
   "tasks.total": "Всего {{.Duration}}",
   "settings.language": "Язык:",
-  "settings.autostart": "Запускать при входе в систему"
+  "settings.autostart": "Запускать при входе в систему",
+  "tab.completed": "Завершённые",
+  "completed.reopen": "Вернуть в работу",
+  "completed.completed_on": "Завершена {{.Date}}",
+  "completed.empty": "Завершённых задач нет.",
+  "error.task_completed": "Задача завершена. Сначала верните её в работу."
 }

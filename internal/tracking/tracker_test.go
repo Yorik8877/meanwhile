@@ -118,7 +118,7 @@ func TestDeleteTaskRemovesItsIntervals(t *testing.T) {
 
 	mustSucceed(t, fixture.tracker.DeleteTask(id))
 
-	if len(fixture.tracker.TaskSummaries()) != 0 || fixture.tracker.AnyRunning() {
+	if len(fixture.tracker.ActiveTaskSummaries()) != 0 || fixture.tracker.AnyRunning() {
 		t.Error("task or its running interval survived deletion")
 	}
 	stored, _ := fixture.repository.Intervals()
@@ -163,7 +163,7 @@ func TestListenersAreNotifiedAfterSuccessfulChangesOnly(t *testing.T) {
 	notifications := 0
 	fixture.tracker.Subscribe(func() {
 		notifications++
-		fixture.tracker.TaskSummaries()
+		fixture.tracker.ActiveTaskSummaries()
 	})
 
 	fixture.createTask(t, "Task")
@@ -180,7 +180,7 @@ func TestTaskSummariesListNewestFirst(t *testing.T) {
 	fixture.clock.Advance(time.Second)
 	newer := fixture.createTask(t, "Newer")
 
-	summaries := fixture.tracker.TaskSummaries()
+	summaries := fixture.tracker.ActiveTaskSummaries()
 
 	if len(summaries) != 2 || summaries[0].Task.ID != newer || summaries[1].Task.ID != older {
 		t.Errorf("order = %+v, want newer then older", summaries)

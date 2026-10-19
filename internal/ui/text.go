@@ -41,6 +41,7 @@ var errorMessages = []struct {
 }{
 	{tracking.ErrEmptyName, message{"error.empty_name", "Enter a task name."}},
 	{tracking.ErrTaskNotFound, message{"error.task_not_found", "The task no longer exists."}},
+	{tracking.ErrTaskCompleted, message{"error.task_completed", "The task is completed. Reopen it first."}},
 	{tracking.ErrIntervalNotFound, message{"error.interval_not_found", "The interval no longer exists."}},
 	{tracking.ErrMissingEnd, message{"error.missing_end", "Enter the end of the interval."}},
 	{tracking.ErrEndBeforeStart, message{"error.end_before_start", "The end must be later than the start."}},

@@ -49,7 +49,7 @@ func (fixture fixture) createTask(t *testing.T, name string) tracking.TaskID {
 
 func (fixture fixture) summaryOf(t *testing.T, id tracking.TaskID) tracking.TaskSummary {
 	t.Helper()
-	for _, summary := range fixture.tracker.TaskSummaries() {
+	for _, summary := range fixture.tracker.ActiveTaskSummaries() {
 		if summary.Task.ID == id {
 			return summary
 		}

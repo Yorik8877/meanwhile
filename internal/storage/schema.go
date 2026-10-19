@@ -21,4 +21,5 @@ var migrations = []string{
 		key   TEXT PRIMARY KEY,
 		value TEXT NOT NULL
 	);`,
+	`ALTER TABLE tasks ADD COLUMN completed_at INTEGER;`,
 }

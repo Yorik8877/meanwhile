@@ -1,11 +1,9 @@
 package ui
 
 import (
-	"image/color"
 	"strings"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
@@ -28,6 +26,7 @@ type taskRow struct {
 	times     *widget.Label
 	intervals *widget.Button
 	edit      *widget.Button
+	complete  *widget.Button
 	remove    *widget.Button
 }
 
@@ -36,6 +35,7 @@ type taskActions struct {
 	toggle    func()
 	intervals func()
 	edit      func()
+	complete  func()
 	remove    func()
 }
 
@@ -48,6 +48,7 @@ func newTaskRow() *taskRow {
 		times:     widget.NewLabel("\n"),
 		intervals: widget.NewButton(message{"tasks.intervals", "Intervals"}.String(), nil),
 		edit:      widget.NewButtonWithIcon("", theme.DocumentCreateIcon(), nil),
+		complete:  widget.NewButtonWithIcon("", theme.ConfirmIcon(), nil),
 		remove:    widget.NewButtonWithIcon("", theme.NewErrorThemedResource(theme.DeleteIcon()), nil),
 	}
 	row.name.Truncation = fyne.TextTruncateEllipsis
@@ -60,16 +61,12 @@ func newTaskRow() *taskRow {
 }
 
 func (row *taskRow) CreateRenderer() fyne.WidgetRenderer {
-	background := canvas.NewRectangle(cardColor())
-	background.CornerRadius = theme.InputRadiusSize()
-
 	details := container.NewVBox(row.name, row.note)
-	buttons := container.NewHBox(layout.NewSpacer(), row.intervals, row.edit, row.remove)
+	buttons := container.NewHBox(layout.NewSpacer(), row.intervals, row.edit, row.complete, row.remove)
 	times := container.NewVBox(buttons, row.times)
 	toggle := container.NewThemeOverride(row.toggle, contrastTheme{iconScale: toggleIconScale})
 	content := container.NewBorder(nil, nil, container.NewVBox(toggle), times, details)
-	card := container.NewStack(background, container.NewPadded(container.NewThemeOverride(content, contrastTheme{})))
-	return &taskRowRenderer{WidgetRenderer: widget.NewSimpleRenderer(card), background: background}
+	return widget.NewSimpleRenderer(newCard(content))
 }
 
 func (row *taskRow) show(summary tracking.TaskSummary, actions taskActions) {
@@ -93,28 +90,9 @@ func (row *taskRow) show(summary tracking.TaskSummary, actions taskActions) {
 	row.toggle.OnTapped = actions.toggle
 	row.intervals.OnTapped = actions.intervals
 	row.edit.OnTapped = actions.edit
+	row.complete.OnTapped = actions.complete
 	row.remove.OnTapped = actions.remove
 	row.Refresh()
-}
-
-// taskRowRenderer repaints the card background on refresh, so that the
-// card follows a switch between the light and the dark theme.
-type taskRowRenderer struct {
-	fyne.WidgetRenderer
-	background *canvas.Rectangle
-}
-
-func (renderer *taskRowRenderer) Refresh() {
-	renderer.background.FillColor = cardColor()
-	renderer.background.CornerRadius = theme.InputRadiusSize()
-	renderer.background.Refresh()
-	renderer.WidgetRenderer.Refresh()
-}
-
-// cardColor is the background of text fields: slightly lighter than the
-// window in the dark theme and slightly darker in the light one.
-func cardColor() color.Color {
-	return theme.Color(theme.ColorNameInputBackground)
 }
 
 func firstLine(text string) string {

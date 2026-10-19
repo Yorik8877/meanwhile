@@ -13,19 +13,38 @@ type TaskSummary struct {
 	Total   time.Duration
 }
 
-// TaskSummaries lists all tasks, newest first.
-func (tracker *Tracker) TaskSummaries() []TaskSummary {
+// ActiveTaskSummaries lists the tasks in progress, newest first.
+func (tracker *Tracker) ActiveTaskSummaries() []TaskSummary {
 	tracker.mutex.Lock()
 	defer tracker.mutex.Unlock()
 
+	active := slices.DeleteFunc(tracker.tasksNewestFirst(), Task.IsCompleted)
+	return tracker.summarize(active)
+}
+
+// CompletedTaskSummaries lists the completed tasks, most recently completed
+// first.
+func (tracker *Tracker) CompletedTaskSummaries() []TaskSummary {
+	tracker.mutex.Lock()
+	defer tracker.mutex.Unlock()
+
+	completed := slices.DeleteFunc(tracker.tasksNewestFirst(), func(task Task) bool { return !task.IsCompleted() })
+	slices.SortStableFunc(completed, func(first, second Task) int {
+		return second.CompletedAt.Compare(first.CompletedAt)
+	})
+	return tracker.summarize(completed)
+}
+
+// summarize keeps the order of tasks.
+func (tracker *Tracker) summarize(tasks []Task) []TaskSummary {
 	now := tracker.now()
 	today := DateOf(now.In(tracker.location))
 	todayStart := today.Start(tracker.location)
 	tomorrowStart := today.AddDays(1).Start(tracker.location)
 
-	summaries := make([]TaskSummary, 0, len(tracker.tasks))
-	indexByTask := make(map[TaskID]int, len(tracker.tasks))
-	for _, task := range tracker.tasksNewestFirst() {
+	summaries := make([]TaskSummary, 0, len(tasks))
+	indexByTask := make(map[TaskID]int, len(tasks))
+	for _, task := range tasks {
 		indexByTask[task.ID] = len(summaries)
 		summaries = append(summaries, TaskSummary{Task: task})
 	}

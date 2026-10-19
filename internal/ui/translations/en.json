@@ -72,5 +72,10 @@
   "tasks.today": "Today {{.Duration}}",
   "tasks.total": "Total {{.Duration}}",
   "settings.language": "Language:",
-  "settings.autostart": "Start at login"
+  "settings.autostart": "Start at login",
+  "tab.completed": "Completed",
+  "completed.reopen": "Reopen",
+  "completed.completed_on": "Completed {{.Date}}",
+  "completed.empty": "No completed tasks.",
+  "error.task_completed": "The task is completed. Reopen it first."
 }

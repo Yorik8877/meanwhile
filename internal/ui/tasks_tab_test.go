@@ -29,7 +29,7 @@ func TestAddingTaskFromEntry(t *testing.T) {
 	test.Type(tab.newTask, "Write tests")
 	tab.newTask.OnSubmitted(tab.newTask.Text)
 
-	summaries := tracker.TaskSummaries()
+	summaries := tracker.ActiveTaskSummaries()
 	if len(summaries) != 1 || summaries[0].Task.Name != "Write tests" {
 		t.Fatalf("summaries = %+v, want one task named Write tests", summaries)
 	}
