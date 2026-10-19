@@ -73,12 +73,7 @@ func (row *taskRow) show(summary tracking.TaskSummary, actions taskActions) {
 	row.name.SetText(summary.Task.Name)
 	row.name.TextStyle.Bold = summary.Running
 	row.note.SetText(firstLine(summary.Task.Note))
-	// One two-line label keeps the lines closer than two labels would.
-	row.times.SetText(message{"tasks.today", "Today {{.Duration}}"}.With(map[string]any{
-		"Duration": formatDuration(summary.Today),
-	}) + "\n" + message{"tasks.total", "Total {{.Duration}}"}.With(map[string]any{
-		"Duration": formatDuration(summary.Total),
-	}))
+	row.showTimes(summary)
 
 	if summary.Running {
 		row.toggle.SetIcon(theme.MediaPauseIcon())
@@ -92,7 +87,18 @@ func (row *taskRow) show(summary tracking.TaskSummary, actions taskActions) {
 	row.edit.OnTapped = actions.edit
 	row.complete.OnTapped = actions.complete
 	row.remove.OnTapped = actions.remove
-	row.Refresh()
+	// Only the widgets whose fields changed are refreshed: see card.
+	row.name.Refresh()
+	row.toggle.Refresh()
+}
+
+func (row *taskRow) showTimes(summary tracking.TaskSummary) {
+	// One two-line label keeps the lines closer than two labels would.
+	row.times.SetText(message{"tasks.today", "Today {{.Duration}}"}.With(map[string]any{
+		"Duration": formatDuration(summary.Today),
+	}) + "\n" + message{"tasks.total", "Total {{.Duration}}"}.With(map[string]any{
+		"Duration": formatDuration(summary.Total),
+	}))
 }
 
 func firstLine(text string) string {

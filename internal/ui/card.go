@@ -12,6 +12,12 @@ import (
 
 // card shows content on a rounded background that sets one task apart
 // from the next, with the contrast overrides applied to the content.
+//
+// Do not refresh a card or the row that holds it; refresh the changed
+// widgets inside instead. A refresh reaches the theme override, and Fyne 2.8
+// gives the override a new font cache scope every time, loading the fonts
+// anew and never freeing the old ones: a card refreshed every second leaked
+// gigabytes within an hour.
 type card struct {
 	widget.BaseWidget
 	content fyne.CanvasObject

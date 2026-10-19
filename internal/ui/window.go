@@ -55,8 +55,20 @@ func (mainWindow *MainWindow) RunTicker(stop <-chan struct{}) {
 		case <-stop:
 			return
 		case <-ticker.C:
-			fyne.Do(mainWindow.refresh)
+			fyne.Do(mainWindow.tick)
 		}
+	}
+}
+
+// tick redraws only what changes with time alone, on the visible tab.
+func (mainWindow *MainWindow) tick() {
+	switch mainWindow.tabs.Selected() {
+	case mainWindow.tasksItem:
+		mainWindow.tasks.tick()
+	case mainWindow.completedItem:
+		// Completed tasks do not run, so their times stand still.
+	default:
+		mainWindow.history.refresh()
 	}
 }
 

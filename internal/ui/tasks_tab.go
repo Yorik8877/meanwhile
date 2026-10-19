@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"slices"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -14,6 +15,7 @@ type tasksTab struct {
 	tracker   *tracking.Tracker
 	window    fyne.Window
 	summaries []tracking.TaskSummary
+	shownRows map[*taskRow]widget.ListItemID
 	newTask   *widget.Entry
 	list      *widget.List
 	pauseAll  *widget.Button
@@ -21,7 +23,7 @@ type tasksTab struct {
 }
 
 func newTasksTab(tracker *tracking.Tracker, window fyne.Window) *tasksTab {
-	tab := &tasksTab{tracker: tracker, window: window}
+	tab := &tasksTab{tracker: tracker, window: window, shownRows: map[*taskRow]widget.ListItemID{}}
 
 	tab.newTask = widget.NewEntry()
 	tab.newTask.SetPlaceHolder(message{"tasks.new_placeholder", "New task"}.String())
@@ -71,11 +73,38 @@ func (tab *tasksTab) showRow(index widget.ListItemID, object fyne.CanvasObject) 
 		return
 	}
 	task := tab.summaries[index].Task
-	object.(*taskRow).show(tab.summaries[index], taskActions{
+	row := object.(*taskRow)
+	tab.shownRows[row] = index
+	row.show(tab.summaries[index], taskActions{
 		toggle:    func() { reportError(tab.window, tab.tracker.Toggle(task.ID)) },
 		intervals: func() { showIntervalEditor(tab.tracker, tab.window, task) },
 		edit:      func() { showTaskForm(tab.tracker, tab.window, task) },
 		complete:  func() { reportError(tab.window, tab.tracker.Complete(task.ID)) },
 		remove:    func() { confirmTaskDeletion(tab.tracker, tab.window, task) },
+	})
+}
+
+// tick updates the times on the shown cards and leaves the list alone:
+// every List.Refresh builds a new template card, and Fyne 2.8 never frees
+// the theme override scope and the fonts that such a card brings.
+func (tab *tasksTab) tick() {
+	summaries := tab.tracker.ActiveTaskSummaries()
+	if !sameTaskOrder(tab.summaries, summaries) {
+		tab.refresh()
+		return
+	}
+	tab.summaries = summaries
+	for row, index := range tab.shownRows {
+		// A row the list keeps in reserve may still be bound to a task that is gone.
+		if index >= len(summaries) {
+			continue
+		}
+		row.showTimes(summaries[index])
+	}
+}
+
+func sameTaskOrder(previous, current []tracking.TaskSummary) bool {
+	return slices.EqualFunc(previous, current, func(first, second tracking.TaskSummary) bool {
+		return first.Task.ID == second.Task.ID
 	})
 }

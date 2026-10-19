@@ -69,5 +69,4 @@ func (row *completedRow) show(summary tracking.TaskSummary, actions completedAct
 	row.reopen.OnTapped = actions.reopen
 	row.intervals.OnTapped = actions.intervals
 	row.remove.OnTapped = actions.remove
-	row.Refresh()
 }
