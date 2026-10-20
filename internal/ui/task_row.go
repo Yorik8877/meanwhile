@@ -12,17 +12,13 @@ import (
 	"github.com/yorik8877/meanwhile/internal/tracking"
 )
 
-// toggleIconScale makes the start/pause button the most prominent control
-// on a card.
-const toggleIconScale = 1.5
-
 // taskRow is one task card in the task list. The list reuses rows, so show
 // binds a row to a task every time it is redrawn.
 type taskRow struct {
 	widget.BaseWidget
-	toggle    *widget.Button
+	toggle    *startButton
 	name      *widget.Label
-	note      *widget.Label
+	note      *widget.RichText
 	times     *widget.Label
 	intervals *widget.Button
 	edit      *widget.Button
@@ -41,9 +37,9 @@ type taskActions struct {
 
 func newTaskRow() *taskRow {
 	row := &taskRow{
-		toggle: widget.NewButtonWithIcon("", theme.MediaPlayIcon(), nil),
+		toggle: newStartButton(),
 		name:   widget.NewLabel(""),
-		note:   widget.NewLabel(""),
+		note:   newSubtleText(""),
 		// Two lines from the start: the list sizes every row by the template row.
 		times:     widget.NewLabel("\n"),
 		intervals: widget.NewButton(message{"tasks.intervals", "Intervals"}.String(), nil),
@@ -54,7 +50,6 @@ func newTaskRow() *taskRow {
 	row.name.Truncation = fyne.TextTruncateEllipsis
 	row.name.SizeName = theme.SizeNameSubHeadingText
 	row.note.Truncation = fyne.TextTruncateEllipsis
-	row.note.Importance = widget.LowImportance
 	row.times.Alignment = fyne.TextAlignTrailing
 	row.ExtendBaseWidget(row)
 	return row
@@ -62,34 +57,26 @@ func newTaskRow() *taskRow {
 
 func (row *taskRow) CreateRenderer() fyne.WidgetRenderer {
 	details := container.NewVBox(row.name, row.note)
-	buttons := container.NewHBox(layout.NewSpacer(), row.intervals, row.edit, row.complete, row.remove)
+	buttons := container.NewHBox(layout.NewSpacer(),
+		newCardButton(row.intervals), newCardButton(row.edit), newCardButton(row.complete), newCardButton(row.remove))
 	times := container.NewVBox(buttons, row.times)
-	toggle := container.NewThemeOverride(row.toggle, contrastTheme{iconScale: toggleIconScale})
-	content := container.NewBorder(nil, nil, container.NewVBox(toggle), times, details)
+	content := container.NewBorder(nil, nil, container.NewVBox(row.toggle), times, details)
 	return widget.NewSimpleRenderer(newCard(content))
 }
 
 func (row *taskRow) show(summary tracking.TaskSummary, actions taskActions) {
 	row.name.SetText(summary.Task.Name)
 	row.name.TextStyle.Bold = summary.Running
-	row.note.SetText(firstLine(summary.Task.Note))
+	setSubtleText(row.note, firstLine(summary.Task.Note))
 	row.showTimes(summary)
 
-	if summary.Running {
-		row.toggle.SetIcon(theme.MediaPauseIcon())
-		row.toggle.Importance = widget.HighImportance
-	} else {
-		row.toggle.SetIcon(theme.MediaPlayIcon())
-		row.toggle.Importance = widget.MediumImportance
-	}
+	row.toggle.SetRunning(summary.Running)
 	row.toggle.OnTapped = actions.toggle
 	row.intervals.OnTapped = actions.intervals
 	row.edit.OnTapped = actions.edit
 	row.complete.OnTapped = actions.complete
 	row.remove.OnTapped = actions.remove
-	// Only the widgets whose fields changed are refreshed: see card.
 	row.name.Refresh()
-	row.toggle.Refresh()
 }
 
 func (row *taskRow) showTimes(summary tracking.TaskSummary) {

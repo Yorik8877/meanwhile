@@ -82,7 +82,7 @@ func TestPauseAllButtonFollowsRunningState(t *testing.T) {
 }
 
 // The list must not be refreshed every second: each refresh builds a new
-// template card, and Fyne keeps the memory of every card it has built.
+// template card.
 func TestTickUpdatesTimesWithoutRebuildingTheList(t *testing.T) {
 	test.NewTempApp(t)
 	clock := &manualClock{moment: time.Date(2026, time.October, 19, 10, 0, 0, 0, time.UTC)}

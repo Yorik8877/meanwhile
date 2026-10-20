@@ -85,8 +85,8 @@ func (tab *tasksTab) showRow(index widget.ListItemID, object fyne.CanvasObject) 
 }
 
 // tick updates the times on the shown cards and leaves the list alone:
-// every List.Refresh builds a new template card, and Fyne 2.8 never frees
-// the theme override scope and the fonts that such a card brings.
+// every List.Refresh builds a new template card to measure, which is
+// wasted work once a second.
 func (tab *tasksTab) tick() {
 	summaries := tab.tracker.ActiveTaskSummaries()
 	if !sameTaskOrder(tab.summaries, summaries) {

@@ -17,7 +17,7 @@ import (
 type completedRow struct {
 	widget.BaseWidget
 	name      *widget.Label
-	note      *widget.Label
+	note      *widget.RichText
 	details   *widget.Label
 	reopen    *widget.Button
 	intervals *widget.Button
@@ -36,7 +36,7 @@ type completedActions struct {
 func newCompletedRow() *completedRow {
 	row := &completedRow{
 		name: widget.NewLabel(""),
-		note: widget.NewLabel(""),
+		note: newSubtleText(""),
 		// Two lines from the start: the list sizes every row by the template row.
 		details:   widget.NewLabel("\n"),
 		reopen:    widget.NewButton(message{"completed.reopen", "Reopen"}.String(), nil),
@@ -46,21 +46,20 @@ func newCompletedRow() *completedRow {
 	row.name.Truncation = fyne.TextTruncateEllipsis
 	row.name.SizeName = theme.SizeNameSubHeadingText
 	row.note.Truncation = fyne.TextTruncateEllipsis
-	row.note.Importance = widget.LowImportance
 	row.details.Alignment = fyne.TextAlignTrailing
 	row.ExtendBaseWidget(row)
 	return row
 }
 
 func (row *completedRow) CreateRenderer() fyne.WidgetRenderer {
-	buttons := container.NewHBox(layout.NewSpacer(), row.reopen, row.intervals, row.remove)
+	buttons := container.NewHBox(layout.NewSpacer(), newCardButton(row.reopen), newCardButton(row.intervals), newCardButton(row.remove))
 	content := container.NewBorder(nil, nil, nil, container.NewVBox(buttons, row.details), container.NewVBox(row.name, row.note))
 	return widget.NewSimpleRenderer(newCard(content))
 }
 
 func (row *completedRow) show(summary tracking.TaskSummary, actions completedActions) {
 	row.name.SetText(summary.Task.Name)
-	row.note.SetText(firstLine(summary.Task.Note))
+	setSubtleText(row.note, firstLine(summary.Task.Note))
 	row.details.SetText(message{"completed.completed_on", "Completed {{.Moment}}"}.With(map[string]any{
 		"Moment": summary.Task.CompletedAt.In(time.Local).Format(completionMomentLayout),
 	}) + "\n" + message{"tasks.total", "Total {{.Duration}}"}.With(map[string]any{

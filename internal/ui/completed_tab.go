@@ -15,7 +15,7 @@ type completedTab struct {
 	window    fyne.Window
 	summaries []tracking.TaskSummary
 	list      *widget.List
-	empty     *widget.Label
+	empty     *widget.RichText
 	content   fyne.CanvasObject
 }
 
@@ -26,10 +26,8 @@ func newCompletedTab(tracker *tracking.Tracker, window fyne.Window) *completedTa
 		func() fyne.CanvasObject { return newCompletedRow() },
 		tab.showRow,
 	)
-	tab.empty = widget.NewLabel(message{"completed.empty", "No completed tasks."}.String())
-	tab.empty.Importance = widget.LowImportance
-	readableEmpty := container.NewThemeOverride(container.NewCenter(tab.empty), contrastTheme{})
-	tab.content = container.NewStack(tab.list, readableEmpty)
+	tab.empty = newSubtleText(message{"completed.empty", "No completed tasks."}.String())
+	tab.content = container.NewStack(tab.list, container.NewCenter(tab.empty))
 	tab.refresh()
 	return tab
 }

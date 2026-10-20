@@ -28,14 +28,12 @@ func newHistoryTab(tracker *tracking.Tracker) *historyTab {
 	tab.nextWeek = widget.NewButton(message{"history.next_week", "Week →"}.String(), func() { tab.moveWeek(1) })
 	tab.weekLabel = widget.NewLabel("")
 	tab.weekLabel.Alignment = fyne.TextAlignCenter
-	hint := widget.NewLabel(message{"history.parallel_hint",
+	hint := newSubtleText(message{"history.parallel_hint",
 		"Tasks that ran in parallel are counted separately, so a day's total can exceed the time that passed."}.String())
 	hint.Wrapping = fyne.TextWrapWord
-	hint.Importance = widget.LowImportance
 
 	navigation := container.NewBorder(nil, nil, previousWeek, tab.nextWeek, tab.weekLabel)
-	readableHint := container.NewThemeOverride(hint, contrastTheme{})
-	tab.content = container.NewBorder(container.NewVBox(navigation, readableHint), nil, nil, nil, container.NewVScroll(tab.days))
+	tab.content = container.NewBorder(container.NewVBox(navigation, hint), nil, nil, nil, container.NewVScroll(tab.days))
 	tab.refresh()
 	return tab
 }
